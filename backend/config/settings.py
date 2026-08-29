@@ -202,6 +202,10 @@ CSRF_TRUSTED_ORIGINS = config(
     cast=Csv(),
 )
 
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+
 # --- Logging ---
 # Rotating file handlers so a busy production log can't fill the disk; each
 # process (gunicorn, daphne, celery worker/beat) writes into the same shared
