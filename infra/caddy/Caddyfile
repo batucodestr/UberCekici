@@ -1,0 +1,55 @@
+{
+    email admin@{$SITE_DOMAIN}
+    auto_https disable_redirects
+}
+
+http://{$SITE_DOMAIN}, https://{$SITE_DOMAIN} {
+    encode zstd gzip
+
+    header {
+        X-Frame-Options "DENY"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "geolocation=(self), camera=(), microphone=()"
+        Content-Security-Policy "default-src 'self'; img-src 'self' data: https://*.tile.openstreetmap.org https://unpkg.com; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' ws: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+        -Server
+    }
+
+    # HSTS yalnızca gerçek/güvenilir bir TLS sertifikası olduğunda
+    # (SITE_USES_HTTPS=true) gönderilir. Aksi halde, geçici/güvenilmeyen
+    # local sertifikayla bir kez https'e uğrayan tarayıcı bir yıl boyunca
+    # http:// erişimini engelleyip siteyi kilitler (CSP connect-src /
+    # mixed-content ihlallerine yol açar).
+    @hsts_enabled expression {env.SITE_USES_HTTPS} == "true"
+    header @hsts_enabled Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    @websocket {
+        header Connection *Upgrade*
+        header Upgrade websocket
+    }
+    handle @websocket {
+        reverse_proxy websocket:8001
+    }
+
+    handle_path /static/* {
+        root * /srv/static
+        file_server
+    }
+
+    handle_path /media/* {
+        root * /srv/media
+        file_server
+    }
+
+    handle /api/* {
+        reverse_proxy backend:8000
+    }
+
+    handle /django-admin/* {
+        reverse_proxy backend:8000
+    }
+
+    handle {
+        reverse_proxy frontend:80
+    }
+}

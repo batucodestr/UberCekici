@@ -1,0 +1,123 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      args:
+        BUILD_ENV: prod
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      RUN_MIGRATIONS: "true"
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    volumes:
+      - static_data:/app/staticfiles
+      - media_data:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/schema/"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+
+  websocket:
+    build:
+      context: ./backend
+      args:
+        BUILD_ENV: prod
+    restart: unless-stopped
+    env_file: .env
+    command: daphne -b 0.0.0.0 -p 8001 config.asgi:application
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  celery:
+    build:
+      context: ./backend
+      args:
+        BUILD_ENV: prod
+    restart: unless-stopped
+    env_file: .env
+    command: celery -A config worker --loglevel=info
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  celery-beat:
+    build:
+      context: ./backend
+      args:
+        BUILD_ENV: prod
+    restart: unless-stopped
+    env_file: .env
+    command: celery -A config beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+        VITE_WS_BASE_URL: ${VITE_WS_BASE_URL}
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN}
+      SITE_USES_HTTPS: ${SITE_USES_HTTPS:-false}
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+      - static_data:/srv/static
+      - media_data:/srv/media
+    depends_on:
+      - backend
+      - frontend
+      - websocket
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_data:
+  media_data:
+  caddy_data:
+  caddy_config:

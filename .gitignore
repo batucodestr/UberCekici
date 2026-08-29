@@ -1,0 +1,20 @@
+## Python / Django
+__pycache__/
+*.pyc
+backend/staticfiles/
+backend/media/
+backend/.pytest_cache/
+*.sqlite3
+
+## Node / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+## Env
+.env
+.env.local
+
+## Docker / OS
+.DS_Store
+*.log
