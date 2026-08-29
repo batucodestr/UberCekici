@@ -132,7 +132,7 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
-            {serviceTypes.slice(0, 6).map((service) => {
+            {serviceTypes.slice(0, 9).map((service) => {
               const Icon = SERVICE_CATALOG[service.name]?.icon;
               return (
                 <div key={service.id} className="card">

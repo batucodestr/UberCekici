@@ -68,6 +68,7 @@ class Command(BaseCommand):
             (ServiceType.Kind.TIRE, 0.6),
             (ServiceType.Kind.FUEL, 0.5),
             (ServiceType.Kind.RECOVERY, 1.8),
+            (ServiceType.Kind.MULTI, 1.6),
         ]:
             st, _ = ServiceType.objects.get_or_create(
                 name=kind, defaults={"recovery_multiplier": Decimal(str(multiplier))}

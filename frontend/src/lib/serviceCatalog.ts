@@ -1,4 +1,4 @@
-import { BatteryCharging, CircleGauge, Fuel, LifeBuoy, Truck, Wrench } from "lucide-react";
+import { BatteryCharging, CircleGauge, Fuel, LifeBuoy, Layers, Truck, Wrench } from "lucide-react";
 
 export const SERVICE_CATALOG: Record<
   string,
@@ -27,5 +27,9 @@ export const SERVICE_CATALOG: Record<
   recovery: {
     icon: LifeBuoy,
     description: "Kaza veya arazi dışına çıkma gibi durumlarda profesyonel kurtarma ekipmanıyla müdahale.",
+  },
+  multi: {
+    icon: Layers,
+    description: "Birden fazla aracınızı aynı seferde, tek talep üzerinden güvenle çekiyoruz.",
   },
 };
