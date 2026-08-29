@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 backend/staticfiles/
 backend/media/
+backend/logs/
 backend/.pytest_cache/
 *.sqlite3
 

@@ -13,10 +13,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - internal
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru --save 60 1
     volumes:
       - redis_data:/data
     healthcheck:
@@ -24,20 +27,24 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - internal
 
   backend:
     build:
       context: ./backend
       args:
         BUILD_ENV: prod
+    container_name: ubercekici-backend
     restart: unless-stopped
     env_file: .env
     environment:
       RUN_MIGRATIONS: "true"
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 30 --access-logfile - --error-logfile -
     volumes:
       - static_data:/app/staticfiles
       - media_data:/app/media
+      - backend_logs:/app/logs
     depends_on:
       db:
         condition: service_healthy
@@ -49,18 +56,33 @@ services:
       timeout: 5s
       retries: 20
       start_period: 15s
+    networks:
+      - internal
+      - edge
 
   websocket:
     build:
       context: ./backend
       args:
         BUILD_ENV: prod
+    container_name: ubercekici-websocket
     restart: unless-stopped
     env_file: .env
     command: daphne -b 0.0.0.0 -p 8001 config.asgi:application
+    volumes:
+      - backend_logs:/app/logs
     depends_on:
       backend:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/api/schema/"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+    networks:
+      - internal
+      - edge
 
   celery:
     build:
@@ -70,9 +92,20 @@ services:
     restart: unless-stopped
     env_file: .env
     command: celery -A config worker --loglevel=info
+    volumes:
+      - media_data:/app/media
+      - backend_logs:/app/logs
     depends_on:
       backend:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A config inspect ping -d celery@$$HOSTNAME | grep -q OK"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - internal
 
   celery-beat:
     build:
@@ -81,10 +114,20 @@ services:
         BUILD_ENV: prod
     restart: unless-stopped
     env_file: .env
-    command: celery -A config beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: celery -A config beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler --pidfile=/tmp/celerybeat.pid
+    volumes:
+      - backend_logs:/app/logs
     depends_on:
       backend:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "test -e /tmp/celerybeat.pid"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - internal
 
   frontend:
     build:
@@ -92,11 +135,56 @@ services:
       args:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL}
         VITE_WS_BASE_URL: ${VITE_WS_BASE_URL}
+    container_name: ubercekici-frontend
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - edge
 
+  # Statik/medya dosyalarını sunar. VPS'teki paylaşılan edge Caddy'nin
+  # ubercekici projesinin static_data/media_data volume'lerine doğrudan
+  # erişimi yok; bu küçük nginx bu volume'leri "edge" ağı üzerinden ona açar.
+  static:
+    image: nginx:1.27-alpine
+    container_name: ubercekici-static
+    restart: unless-stopped
+    volumes:
+      - ./infra/nginx/static.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_data:/srv/static:ro
+      - media_data:/srv/media:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - edge
+
+  # Bu VPS'te 80/443 zaten /opt/trugc altındaki paylaşılan Caddy tarafından
+  # kullanılıyor (birden çok siteyi tek instance üzerinden proxy'liyor).
+  # Bu yüzden varsayılan modda kendi Caddy'miz YOK; backend/websocket/
+  # frontend/static container'ları "edge" ağına katılıp paylaşılan Caddy
+  # tarafından reverse proxy ile servis ediliyor (bkz. infra/caddy/Caddyfile
+  # ve /opt/trugc/Caddyfile içine eklenen ubercekici.com bloğu).
+  #
+  # Bu compose dosyasını PAYLAŞILMAYAN, kendi başına bir sunucuda (80/443
+  # boşken) ayağa kaldırmak isterseniz:
+  #   docker compose --profile standalone up -d --build
+  # bu profil kendi Caddy'nizi de başlatır (infra/caddy/Caddyfile, Let's
+  # Encrypt otomatik HTTPS dahil).
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
+    profiles: ["standalone"]
     ports:
       - "80:80"
       - "443:443"
@@ -113,11 +201,19 @@ services:
       - backend
       - frontend
       - websocket
+    networks:
+      - internal
+
+networks:
+  internal:
+  edge:
+    external: true
 
 volumes:
   postgres_data:
   redis_data:
   static_data:
   media_data:
+  backend_logs:
   caddy_data:
   caddy_config:

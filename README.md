@@ -8,19 +8,45 @@
 - **Frontend:** React 18, TypeScript, Vite, TailwindCSS, React Query, Zustand, React Router, Leaflet, Framer Motion
 - **Altyapı:** Docker Compose, Caddy (reverse proxy + HTTPS hazırlığı + Brotli/Gzip), Gunicorn, Daphne
 
-## Hızlı Başlangıç
+## Hızlı Başlangıç (yerel/dev)
 
 ```bash
 cp .env.example .env   # veya repoda hazır gelen .env dosyasını kullanın
-docker compose up -d --build
+docker compose --profile standalone up -d --build
 ```
 
-Servisler ayağa kalktıktan sonra:
+`--profile standalone` projenin kendi Caddy'sini de (80/443, otomatik HTTPS) ayağa kaldırır. Servisler ayağa kalktıktan sonra:
 
 - Uygulama: http://localhost
 - Yönetici Paneli (React): http://localhost/admin/dashboard
 - Django Admin (yalnızca arka uç referansı): http://localhost/django-admin
 - API dokümantasyonu (Swagger): http://localhost/api/docs/
+
+## Production Deployment (bu VPS)
+
+Bu VPS'te 80/443 zaten `/opt/trugc` altındaki **paylaşılan edge Caddy** tarafından kullanılıyor (aynı Caddy, `batucodes.com`'u da proxy'liyor). Bu yüzden production'da **profilsiz** kaldırılır — kendi Caddy'miz çalışmaz, `backend`/`websocket`/`frontend`/`static` container'ları `edge` adlı external Docker network'üne katılır ve paylaşılan Caddy onları isimleriyle (`ubercekici-backend` vb.) proxy'ler:
+
+```bash
+docker compose up -d --build
+```
+
+İlgili dosyalar:
+
+- `docker-compose.yml` — varsayılan (profilsiz) mod = edge-entegre; `--profile standalone` = kendi Caddy'siyle bağımsız mod.
+- `infra/caddy/ubercekici.site.caddy` — paylaşılan Caddy'ye eklenen site bloğunun repodaki referans kopyası (konteynerler tarafından okunmaz; gerçek dosya bu VPS'te `/opt/trugc/Caddyfile`).
+- `infra/nginx/static.conf` — `static` servisinin `/static` ve `/media`'yı `edge` ağı üzerinden paylaşılan Caddy'ye açan nginx konfigürasyonu.
+
+İlk deploy sonrası (RUN_SEED=false olduğu için demo hesaplar oluşmaz):
+
+```bash
+docker compose exec backend python manage.py createsuperuser
+```
+
+Paylaşılan Caddy'ye eklenen `ubercekici.com` bloğunun aktif olması için (zero-downtime, container yeniden başlamaz):
+
+```bash
+docker exec trugc-caddy-1 caddy reload --config /etc/caddy/Caddyfile
+```
 
 `RUN_SEED=true` olduğunda backend ilk açılışta örnek verileri otomatik oluşturur:
 

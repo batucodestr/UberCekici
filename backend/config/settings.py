@@ -1,9 +1,12 @@
+import os
 from datetime import timedelta
 from pathlib import Path
 
 from decouple import Csv, config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+LOG_DIR = Path(config("LOG_DIR", default=str(BASE_DIR / "logs")))
+os.makedirs(LOG_DIR, exist_ok=True)
 
 SECRET_KEY = config("DJANGO_SECRET_KEY", default="insecure-dev-key-change-me")
 DEBUG = config("DEBUG", default=False, cast=bool)
@@ -198,3 +201,78 @@ CSRF_TRUSTED_ORIGINS = config(
     default="http://localhost,http://localhost:5173",
     cast=Csv(),
 )
+
+# --- Logging ---
+# Rotating file handlers so a busy production log can't fill the disk; each
+# process (gunicorn, daphne, celery worker/beat) writes into the same shared
+# backend_logs volume (see docker-compose.yml) under its own file.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "%(asctime)s %(levelname)s %(name)s %(process)d %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+        "app_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": LOG_DIR / "app.log",
+            "maxBytes": 10 * 1024 * 1024,
+            "backupCount": 5,
+            "formatter": "verbose",
+        },
+        "error_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": LOG_DIR / "error.log",
+            "maxBytes": 10 * 1024 * 1024,
+            "backupCount": 5,
+            "formatter": "verbose",
+            "level": "ERROR",
+        },
+        "security_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": LOG_DIR / "security.log",
+            "maxBytes": 10 * 1024 * 1024,
+            "backupCount": 5,
+            "formatter": "verbose",
+        },
+        "celery_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": LOG_DIR / "celery.log",
+            "maxBytes": 10 * 1024 * 1024,
+            "backupCount": 5,
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console", "app_file"],
+        "level": "INFO",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "app_file", "error_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.security": {
+            "handlers": ["console", "security_file", "error_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console", "error_file"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        "celery": {
+            "handlers": ["console", "celery_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
