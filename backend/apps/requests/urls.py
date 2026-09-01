@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     AcceptRequestView,
     CreateServiceRequestView,
+    GeocodeView,
     MyServiceRequestsView,
     OpenServiceRequestsView,
     RateRequestView,
@@ -11,6 +12,7 @@ from .views import (
 )
 
 urlpatterns = [
+    path("geocode/", GeocodeView.as_view(), name="geocode"),
     path("request/", CreateServiceRequestView.as_view(), name="request-create"),
     path("request/mine/", MyServiceRequestsView.as_view(), name="request-mine"),
     path("request/open/", OpenServiceRequestsView.as_view(), name="request-open"),

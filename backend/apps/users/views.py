@@ -1,6 +1,6 @@
 from django.conf import settings
 from drf_spectacular.utils import extend_schema
-from rest_framework import generics, permissions, viewsets
+from rest_framework import generics, permissions, serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -141,3 +141,8 @@ class AdminUserViewSet(viewsets.ModelViewSet):
         user.set_password(serializer.validated_data["password"])
         user.save(update_fields=["password"])
         return Response(status=204)
+
+    def perform_destroy(self, instance):
+        if instance.pk == self.request.user.pk:
+            raise serializers.ValidationError({"detail": "Kendi hesabınızı silemezsiniz."})
+        super().perform_destroy(instance)

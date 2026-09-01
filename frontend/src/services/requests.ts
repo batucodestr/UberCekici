@@ -11,6 +11,17 @@ export async function fetchServiceTypes(): Promise<ServiceType[]> {
   return Array.isArray(data) ? data : data.results;
 }
 
+export interface GeocodeResult {
+  lat: number;
+  lng: number;
+  display_name: string;
+}
+
+export async function geocodeAddress(query: string): Promise<GeocodeResult> {
+  const { data } = await api.get<GeocodeResult>("/geocode/", { params: { q: query } });
+  return data;
+}
+
 export interface QuotePayload {
   vehicle_type_id: number;
   service_type_id: number;

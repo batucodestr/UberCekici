@@ -1,5 +1,16 @@
 export type Role = "customer" | "driver" | "admin";
 
+export interface UserProfile {
+  default_address?: string;
+  loyalty_points?: number;
+  approval_status?: ApprovalStatus;
+  is_online?: boolean;
+  vehicle_plate?: string;
+  vehicle_model?: string;
+  rating?: string;
+  total_earnings?: string;
+}
+
 export interface User {
   id: number;
   username: string;
@@ -9,7 +20,11 @@ export interface User {
   phone_number: string;
   role: Role;
   is_active_account: boolean;
+  is_staff?: boolean;
   date_joined: string;
+  last_login?: string | null;
+  profile?: UserProfile | null;
+  request_count?: number | null;
 }
 
 export interface AuthResponse {

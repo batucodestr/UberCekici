@@ -29,6 +29,7 @@ VEHICLE_TYPES = [
     ("Otobüs", "🚌", 2.2),
     ("Traktör", "🚜", 1.6),
     ("Kapalı Kasa", "🚐", 1.5),
+    ("Çoklu Araç Çekimi", "🚛", 1.8),
 ]
 
 
@@ -66,7 +67,6 @@ class Command(BaseCommand):
             (ServiceType.Kind.ROADSIDE, 0.8),
             (ServiceType.Kind.BATTERY, 0.6),
             (ServiceType.Kind.TIRE, 0.6),
-            (ServiceType.Kind.FUEL, 0.5),
             (ServiceType.Kind.RECOVERY, 1.8),
             (ServiceType.Kind.MULTI, 1.6),
         ]:

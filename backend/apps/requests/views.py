@@ -3,6 +3,7 @@ from rest_framework import generics, permissions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.common.geo import geocode
 from apps.common.permissions import IsAdminRole, IsCustomer, IsDriver
 
 from .models import ServiceRequest
@@ -170,3 +171,16 @@ class UpdateRequestStatusView(APIView):
         service_request.save(update_fields=["status"])
         broadcast_request_update(service_request)
         return Response(ServiceRequestSerializer(service_request).data)
+
+
+class GeocodeView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        query = request.query_params.get("q", "").strip()
+        if not query:
+            return Response({"detail": "q parametresi gerekli."}, status=status.HTTP_400_BAD_REQUEST)
+        result = geocode(query)
+        if result is None:
+            return Response({"detail": "Adres bulunamadı."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(result)

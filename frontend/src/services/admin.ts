@@ -46,6 +46,10 @@ export async function setAdminUserPassword(id: number, password: string): Promis
   await api.post(`/admin/users/${id}/set-password/`, { password });
 }
 
+export async function deleteAdminUser(id: number): Promise<void> {
+  await api.delete(`/admin/users/${id}/`);
+}
+
 export async function fetchAdminDrivers(params?: ListParams): Promise<Paginated<AdminDriver>> {
   const { data } = await api.get<Paginated<AdminDriver>>("/admin/drivers/", {
     params: buildParams(params),

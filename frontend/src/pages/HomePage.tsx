@@ -17,6 +17,7 @@ const VEHICLES = [
   { name: "Otobüs", icon: "🚌" },
   { name: "Traktör", icon: "🚜" },
   { name: "Kapalı Kasa", icon: "🚐" },
+  { name: "Çoklu Araç Çekimi", icon: "🚛" },
 ];
 
 const TRUST_POINTS = [

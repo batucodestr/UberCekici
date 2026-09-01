@@ -1,4 +1,4 @@
-import { BatteryCharging, CircleGauge, Fuel, LifeBuoy, Layers, Truck, Wrench } from "lucide-react";
+import { BatteryCharging, CircleGauge, LifeBuoy, Layers, Truck, Wrench } from "lucide-react";
 
 export const SERVICE_CATALOG: Record<
   string,
@@ -19,10 +19,6 @@ export const SERVICE_CATALOG: Record<
   tire: {
     icon: CircleGauge,
     description: "Patlak veya inik lastiğinizi yol kenarında hızlıca değiştiriyoruz.",
-  },
-  fuel: {
-    icon: Fuel,
-    description: "Yakıtınız bittiğinde en yakın noktaya kadar acil yakıt desteği sağlıyoruz.",
   },
   recovery: {
     icon: LifeBuoy,

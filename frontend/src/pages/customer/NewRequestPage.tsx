@@ -4,13 +4,14 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Navbar } from "@/components/layout/Navbar";
-import { getCurrentLocation, LocationPicker, type LatLng } from "@/components/LocationPicker";
+import { getCurrentLocation, LocationPicker, round6, type LatLng } from "@/components/LocationPicker";
 import { estimateDurationMinutes, haversineDistanceKm } from "@/lib/geo";
 import { fetchNearbyDrivers } from "@/services/driver";
 import {
   createServiceRequest,
   fetchServiceTypes,
   fetchVehicleTypes,
+  geocodeAddress,
   getQuote,
 } from "@/services/requests";
 import type { Quote } from "@/types";
@@ -25,6 +26,14 @@ export default function NewRequestPage() {
   const [pickup, setPickup] = useState<LatLng | null>(null);
   const [dropoff, setDropoff] = useState<LatLng | null>(null);
   const [activePoint, setActivePoint] = useState<"pickup" | "dropoff">("pickup");
+  const [locationMode, setLocationMode] = useState<"map" | "manual">("map");
+  const [manualAddress, setManualAddress] = useState({
+    pickup: { street: "", district: "", city: "" },
+    dropoff: { street: "", district: "", city: "" },
+  });
+  const [manualResolved, setManualResolved] = useState({ pickup: "", dropoff: "" });
+  const [geocoding, setGeocoding] = useState(false);
+  const [geocodeError, setGeocodeError] = useState("");
   const [quote, setQuote] = useState<Quote | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -59,6 +68,36 @@ export default function NewRequestPage() {
       setActivePoint("dropoff");
     } catch (err) {
       setError((err as Error).message);
+    }
+  }
+
+  function updateManualField(
+    point: "pickup" | "dropoff",
+    field: "street" | "district" | "city",
+    value: string
+  ) {
+    setManualAddress((prev) => ({ ...prev, [point]: { ...prev[point], [field]: value } }));
+  }
+
+  async function handleGeocode(point: "pickup" | "dropoff") {
+    const { street, district, city } = manualAddress[point];
+    const query = [street, district, city].filter(Boolean).join(", ");
+    if (!query) {
+      setGeocodeError("Lütfen en azından sokak ve şehir bilgisi girin.");
+      return;
+    }
+    setGeocoding(true);
+    setGeocodeError("");
+    try {
+      const result = await geocodeAddress(query);
+      const value = { lat: round6(result.lat), lng: round6(result.lng) };
+      if (point === "pickup") setPickup(value);
+      else setDropoff(value);
+      setManualResolved((prev) => ({ ...prev, [point]: result.display_name }));
+    } catch {
+      setGeocodeError("Adres bulunamadı. Lütfen bilgileri kontrol edip tekrar deneyin.");
+    } finally {
+      setGeocoding(false);
     }
   }
 
@@ -194,22 +233,101 @@ export default function NewRequestPage() {
                   Varış Noktası
                 </button>
               </div>
-              <LocationPicker
-                pickup={pickup}
-                dropoff={dropoff}
-                activePoint={activePoint}
-                onChange={(point, value) =>
-                  point === "pickup" ? setPickup(value) : setDropoff(value)
-                }
-                nearbyDrivers={nearbyDrivers.map((d) => ({
-                  lat: Number(d.latitude),
-                  lng: Number(d.longitude),
-                }))}
-              />
-              <p className="mt-2 text-xs text-zinc-400">
-                Haritaya tıklayarak veya işaretçiyi sürükleyerek konum seçebilirsiniz. 🚚 ile
-                işaretli noktalar yakınınızdaki çevrimiçi çekicilerdir.
-              </p>
+
+              <div className="mb-4 flex gap-2 rounded-xl bg-zinc-100 p-1 text-sm font-medium">
+                <button
+                  type="button"
+                  onClick={() => setLocationMode("map")}
+                  className={`flex-1 rounded-lg py-1.5 transition ${
+                    locationMode === "map" ? "bg-white text-primary-600 shadow-sm" : "text-zinc-500"
+                  }`}
+                >
+                  Haritadan Seç
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLocationMode("manual")}
+                  className={`flex-1 rounded-lg py-1.5 transition ${
+                    locationMode === "manual" ? "bg-white text-primary-600 shadow-sm" : "text-zinc-500"
+                  }`}
+                >
+                  Manuel Adres Gir
+                </button>
+              </div>
+
+              {locationMode === "map" && (
+                <>
+                  <LocationPicker
+                    pickup={pickup}
+                    dropoff={dropoff}
+                    activePoint={activePoint}
+                    onChange={(point, value) =>
+                      point === "pickup" ? setPickup(value) : setDropoff(value)
+                    }
+                    nearbyDrivers={nearbyDrivers.map((d) => ({
+                      lat: Number(d.latitude),
+                      lng: Number(d.longitude),
+                    }))}
+                  />
+                  <p className="mt-2 text-xs text-zinc-400">
+                    Haritaya tıklayarak veya işaretçiyi sürükleyerek konum seçebilirsiniz. 🚚 ile
+                    işaretli noktalar yakınınızdaki çevrimiçi çekicilerdir.
+                  </p>
+                </>
+              )}
+
+              {locationMode === "manual" && (
+                <div className="space-y-3">
+                  <p className="text-xs text-zinc-500">
+                    {activePoint === "pickup" ? "Başlangıç noktası" : "Varış noktası"} için adres
+                    bilgilerini girin.
+                  </p>
+                  <input
+                    className="input"
+                    placeholder="Sokak / Cadde, No"
+                    value={manualAddress[activePoint].street}
+                    onChange={(e) => updateManualField(activePoint, "street", e.target.value)}
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      className="input"
+                      placeholder="İlçe / Mahalle"
+                      value={manualAddress[activePoint].district}
+                      onChange={(e) => updateManualField(activePoint, "district", e.target.value)}
+                    />
+                    <input
+                      className="input"
+                      placeholder="Şehir"
+                      value={manualAddress[activePoint].city}
+                      onChange={(e) => updateManualField(activePoint, "city", e.target.value)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    disabled={geocoding}
+                    onClick={() => handleGeocode(activePoint)}
+                    className="btn-outline w-full !py-2 text-sm"
+                  >
+                    {geocoding ? "Adres aranıyor..." : "Adresi Bul"}
+                  </button>
+                  {geocodeError && <p className="text-xs text-red-500">{geocodeError}</p>}
+                  {manualResolved[activePoint] && (
+                    <p className="rounded-xl bg-green-50 px-3 py-2 text-xs text-green-700">
+                      Bulunan adres: {manualResolved[activePoint]}
+                    </p>
+                  )}
+                  <p className="text-xs text-zinc-400">
+                    {activePoint === "pickup"
+                      ? pickup
+                        ? "Başlangıç noktası ayarlandı."
+                        : "Henüz başlangıç noktası ayarlanmadı."
+                      : dropoff
+                        ? "Varış noktası ayarlandı."
+                        : "Henüz varış noktası ayarlanmadı."}
+                  </p>
+                </div>
+              )}
+
               <button
                 disabled={!pickup || !dropoff}
                 onClick={() => setStep(2)}

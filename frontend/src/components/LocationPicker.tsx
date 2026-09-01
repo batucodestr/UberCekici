@@ -24,7 +24,7 @@ export interface LatLng {
 // Raw values from Leaflet clicks/drags/geolocation carry many more floating-point
 // digits than that, so they must be rounded here at the source or the create-request
 // API call fails with a "too many digits" validation error.
-function round6(value: number): number {
+export function round6(value: number): number {
   return Math.round(value * 1e6) / 1e6;
 }
 

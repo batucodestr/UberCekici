@@ -61,6 +61,9 @@ class UserSerializer(serializers.ModelSerializer):
 class AdminUserSerializer(serializers.ModelSerializer):
     """Yönetici panelinden kullanıcı yönetimi için — role ve hesap durumu yazılabilir."""
 
+    profile = serializers.SerializerMethodField()
+    request_count = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = (
@@ -74,8 +77,39 @@ class AdminUserSerializer(serializers.ModelSerializer):
             "is_active_account",
             "is_staff",
             "date_joined",
+            "last_login",
+            "profile",
+            "request_count",
         )
         read_only_fields = ("id", "username", "date_joined")
+
+    def get_profile(self, obj):
+        if obj.role == User.Role.CUSTOMER and hasattr(obj, "customer_profile"):
+            c = obj.customer_profile
+            return {
+                "default_address": c.default_address,
+                "loyalty_points": c.loyalty_points,
+            }
+        if obj.role == User.Role.DRIVER and hasattr(obj, "driver_profile"):
+            d = obj.driver_profile
+            return {
+                "approval_status": d.approval_status,
+                "is_online": d.is_online,
+                "vehicle_plate": d.vehicle_plate,
+                "vehicle_model": d.vehicle_model,
+                "rating": str(d.rating),
+                "total_earnings": str(d.total_earnings),
+            }
+        return None
+
+    def get_request_count(self, obj):
+        from apps.requests.models import ServiceRequest
+
+        if obj.role == User.Role.CUSTOMER:
+            return ServiceRequest.objects.filter(customer=obj).count()
+        if obj.role == User.Role.DRIVER:
+            return ServiceRequest.objects.filter(driver=obj).count()
+        return None
 
 
 class AdminSetPasswordSerializer(serializers.Serializer):

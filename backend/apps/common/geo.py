@@ -25,6 +25,29 @@ def estimate_duration_minutes(distance_km: float) -> float:
     return round((distance_km / AVERAGE_SPEED_KMH) * 60, 1)
 
 
+def geocode(query: str) -> dict | None:
+    """Serbest metin adresi koordinata çevirir; bulunamazsa None döner."""
+    try:
+        response = requests.get(
+            f"{settings.NOMINATIM_URL}/search",
+            params={"q": query, "format": "jsonv2", "limit": 1, "countrycodes": "tr"},
+            headers={"User-Agent": "UberCekici/1.0 (+https://ubercekici.local)"},
+            timeout=NOMINATIM_TIMEOUT_SECONDS,
+        )
+        response.raise_for_status()
+        results = response.json()
+        if not results:
+            return None
+        result = results[0]
+        return {
+            "lat": round(float(result["lat"]), 6),
+            "lng": round(float(result["lon"]), 6),
+            "display_name": result.get("display_name", query),
+        }
+    except (requests.RequestException, ValueError, KeyError, IndexError):
+        return None
+
+
 def reverse_geocode(lat: float, lng: float) -> str:
     """Koordinatı okunabilir bir adrese çevirir; servis erişilemezse koordinatı döndürür."""
     fallback = f"{lat:.6f}, {lng:.6f}"

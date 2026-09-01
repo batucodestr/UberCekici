@@ -20,7 +20,6 @@ class ServiceType(models.Model):
         ROADSIDE = "roadside", "Yol Yardım"
         BATTERY = "battery", "Akü"
         TIRE = "tire", "Lastik"
-        FUEL = "fuel", "Yakıt"
         RECOVERY = "recovery", "Kurtarma"
         MULTI = "multi", "Çoklu Araç Çekimi"
 
