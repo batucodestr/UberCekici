@@ -1,17 +1,10 @@
-import L from "leaflet";
 import { useEffect, useRef, useState } from "react";
-import { MapContainer, Marker, TileLayer } from "react-leaflet";
 
+import { useGoogleMaps } from "@/lib/googleMaps";
 import { WS_BASE_URL } from "@/services/api";
 import { useAuthStore } from "@/store/authStore";
 
-const driverIcon = new L.DivIcon({
-  html: '<div style="font-size:22px;transform:translate(-50%,-50%)">🚚</div>',
-  className: "",
-  iconSize: [0, 0],
-});
-
-const DEFAULT_CENTER: [number, number] = [39.0, 35.0];
+const DEFAULT_CENTER = { lat: 39.0, lng: 35.0 };
 
 interface DriverLocationMessage {
   kind: "driver_location";
@@ -20,8 +13,12 @@ interface DriverLocationMessage {
 
 export function AdminLiveMap() {
   const accessToken = useAuthStore((s) => s.accessToken);
-  const [positions, setPositions] = useState<Record<number, [number, number]>>({});
+  const { loaded, error } = useGoogleMaps();
+  const [positions, setPositions] = useState<Record<number, { lat: number; lng: number }>>({});
   const socketRef = useRef<WebSocket | null>(null);
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const mapInstanceRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const markersRef = useRef<Record<number, any>>({}); // eslint-disable-line @typescript-eslint/no-explicit-any
 
   useEffect(() => {
     if (!accessToken) return;
@@ -34,7 +31,7 @@ export function AdminLiveMap() {
         const { driver_id, latitude, longitude } = (message as DriverLocationMessage).data;
         setPositions((prev) => ({
           ...prev,
-          [driver_id]: [Number(latitude), Number(longitude)],
+          [driver_id]: { lat: Number(latitude), lng: Number(longitude) },
         }));
       }
     };
@@ -42,24 +39,58 @@ export function AdminLiveMap() {
     return () => socket.close();
   }, [accessToken]);
 
-  const entries = Object.entries(positions);
+  useEffect(() => {
+    if (!loaded || !mapRef.current || mapInstanceRef.current) return;
+    const google = window.google;
+    mapInstanceRef.current = new google.maps.Map(mapRef.current, {
+      center: DEFAULT_CENTER,
+      zoom: 6,
+      streetViewControl: false,
+      mapTypeControl: false,
+      fullscreenControl: false,
+      scrollwheel: false,
+    });
+  }, [loaded]);
+
+  useEffect(() => {
+    if (!loaded || !mapInstanceRef.current) return;
+    const google = window.google;
+    const map = mapInstanceRef.current;
+    const entries = Object.entries(positions);
+
+    entries.forEach(([driverId, pos]) => {
+      const id = Number(driverId);
+      if (markersRef.current[id]) {
+        markersRef.current[id].setPosition(pos);
+      } else {
+        markersRef.current[id] = new google.maps.Marker({
+          map,
+          position: pos,
+          label: { text: "🚚", fontSize: "20px" },
+          icon: { path: google.maps.SymbolPath.CIRCLE, scale: 0 },
+        });
+      }
+    });
+
+    if (entries.length === 1) {
+      map.setCenter(entries[0][1]);
+      map.setZoom(11);
+    } else if (entries.length > 1) {
+      const bounds = new google.maps.LatLngBounds();
+      entries.forEach(([, pos]) => bounds.extend(pos));
+      map.fitBounds(bounds, 48);
+    }
+  }, [loaded, positions]);
 
   return (
     <div className="overflow-hidden rounded-2xl border border-zinc-200">
-      <MapContainer
-        center={entries.length ? entries[0][1] : DEFAULT_CENTER}
-        zoom={entries.length ? 11 : 6}
-        style={{ height: "360px", width: "100%" }}
-        scrollWheelZoom={false}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        {entries.map(([driverId, pos]) => (
-          <Marker key={driverId} position={pos} icon={driverIcon} />
-        ))}
-      </MapContainer>
+      {error && <div className="p-4 text-sm text-red-600">Google Haritalar yüklenemedi: {error}</div>}
+      {!error && !loaded && (
+        <div className="flex h-[360px] items-center justify-center text-sm text-zinc-400">
+          Harita yükleniyor...
+        </div>
+      )}
+      <div ref={mapRef} style={{ height: "360px", width: "100%", display: loaded ? "block" : "none" }} />
     </div>
   );
 }

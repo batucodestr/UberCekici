@@ -180,6 +180,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 OSRM_URL = config("OSRM_URL", default="http://osrm:5000")
 NOMINATIM_URL = config("NOMINATIM_URL", default="https://nominatim.openstreetmap.org")
+GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY", default="")
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 

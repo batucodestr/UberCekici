@@ -25,8 +25,54 @@ def estimate_duration_minutes(distance_km: float) -> float:
     return round((distance_km / AVERAGE_SPEED_KMH) * 60, 1)
 
 
+def _geocode_google(query: str) -> dict | None:
+    try:
+        response = requests.get(
+            "https://maps.googleapis.com/maps/api/geocode/json",
+            params={"address": query, "region": "tr", "key": settings.GOOGLE_MAPS_API_KEY},
+            timeout=NOMINATIM_TIMEOUT_SECONDS,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        if payload.get("status") != "OK" or not payload.get("results"):
+            return None
+        result = payload["results"][0]
+        location = result["geometry"]["location"]
+        return {
+            "lat": round(float(location["lat"]), 6),
+            "lng": round(float(location["lng"]), 6),
+            "display_name": result.get("formatted_address", query),
+        }
+    except (requests.RequestException, ValueError, KeyError, IndexError):
+        return None
+
+
+def _reverse_geocode_google(lat: float, lng: float) -> str | None:
+    try:
+        response = requests.get(
+            "https://maps.googleapis.com/maps/api/geocode/json",
+            params={"latlng": f"{lat},{lng}", "key": settings.GOOGLE_MAPS_API_KEY},
+            timeout=NOMINATIM_TIMEOUT_SECONDS,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        if payload.get("status") != "OK" or not payload.get("results"):
+            return None
+        return payload["results"][0].get("formatted_address")
+    except (requests.RequestException, ValueError, KeyError, IndexError):
+        return None
+
+
 def geocode(query: str) -> dict | None:
-    """Serbest metin adresi koordinata çevirir; bulunamazsa None döner."""
+    """Serbest metin adresi koordinata çevirir; bulunamazsa None döner.
+
+    GOOGLE_MAPS_API_KEY tanımlıysa Google Geocoding API kullanılır, aksi
+    halde Nominatim/OpenStreetMap'e geri döner.
+    """
+    if settings.GOOGLE_MAPS_API_KEY:
+        result = _geocode_google(query)
+        if result is not None:
+            return result
     try:
         response = requests.get(
             f"{settings.NOMINATIM_URL}/search",
@@ -51,6 +97,10 @@ def geocode(query: str) -> dict | None:
 def reverse_geocode(lat: float, lng: float) -> str:
     """Koordinatı okunabilir bir adrese çevirir; servis erişilemezse koordinatı döndürür."""
     fallback = f"{lat:.6f}, {lng:.6f}"
+    if settings.GOOGLE_MAPS_API_KEY:
+        display_name = _reverse_geocode_google(lat, lng)
+        if display_name:
+            return display_name
     try:
         response = requests.get(
             f"{settings.NOMINATIM_URL}/reverse",

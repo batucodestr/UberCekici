@@ -14,7 +14,12 @@ export function Navbar({ title }: { title: string }) {
       <div className="flex items-center gap-3">
         <img src="/logo.png" alt="Uber Çekici" className="h-9 w-9 rounded-xl object-cover" />
         <div>
-          <p className="text-xs text-zinc-400">Uber Çekici</p>
+          <p className="flex items-center gap-1.5 text-xs text-zinc-400">
+            Uber Çekici
+            <span className="rounded-full bg-primary-50 px-1.5 py-0.5 text-[10px] font-semibold text-primary-600">
+              Yakında Sizlerle
+            </span>
+          </p>
           <h1 className="text-lg font-bold text-zinc-900">{title}</h1>
         </div>
       </div>

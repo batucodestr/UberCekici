@@ -25,6 +25,13 @@ export function PublicNavbar({ dark = false }: { dark?: boolean }) {
         <Link to="/" className="flex items-center gap-2">
           <img src="/logo.png" alt="Uber Çekici" className="h-9 w-9 rounded-xl object-cover" />
           <span className="font-bold">Uber Çekici</span>
+          <span
+            className={`hidden rounded-full px-2 py-0.5 text-[11px] font-semibold sm:inline ${
+              dark ? "bg-white/10 text-primary-300" : "bg-primary-50 text-primary-600"
+            }`}
+          >
+            Yakında Sizlerle
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
