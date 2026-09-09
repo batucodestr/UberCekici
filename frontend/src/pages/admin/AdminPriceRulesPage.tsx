@@ -5,23 +5,54 @@ import { useState } from "react";
 import { createPriceRule, fetchPriceRules, updatePriceRule } from "@/services/admin";
 import type { PriceRule } from "@/types";
 
+const NUMERIC_FIELDS: (keyof PriceRule)[] = ["base_fee", "price_per_km", "night_surcharge"];
+
 function RuleRow({ rule }: { rule: PriceRule }) {
   const queryClient = useQueryClient();
   const [form, setForm] = useState(rule);
+  const [errors, setErrors] = useState<Partial<Record<keyof PriceRule, string>>>({});
 
   const mutation = useMutation({
     mutationFn: (payload: Partial<PriceRule>) => updatePriceRule(rule.id, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["price-rules"] }),
+    onSuccess: (_data, variables) => {
+      const key = Object.keys(variables)[0] as keyof PriceRule;
+      setErrors((prev) => ({ ...prev, [key]: undefined }));
+      queryClient.invalidateQueries({ queryKey: ["price-rules"] });
+    },
+    onError: (error: unknown, variables) => {
+      const key = Object.keys(variables)[0] as keyof PriceRule;
+      const message =
+        (error as { response?: { data?: Record<string, string[]> } })?.response?.data?.[key]?.[0] ??
+        "Kaydedilemedi, lütfen değeri kontrol edin.";
+      setErrors((prev) => ({ ...prev, [key]: message }));
+      setForm(rule);
+    },
   });
 
   function field(key: keyof PriceRule) {
+    const isNumeric = NUMERIC_FIELDS.includes(key);
     return (
-      <input
-        className="input !py-1.5 text-sm"
-        value={form[key] as string}
-        onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-        onBlur={() => mutation.mutate({ [key]: form[key] })}
-      />
+      <div>
+        <input
+          className={`input !py-1.5 text-sm ${errors[key] ? "border-red-500" : ""}`}
+          value={form[key] as string}
+          onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+          onBlur={() => {
+            let value = form[key] as string;
+            if (isNumeric) {
+              value = value.trim().replace(",", ".");
+              if (value === "" || Number.isNaN(Number(value))) {
+                setErrors((prev) => ({ ...prev, [key]: "Geçerli bir sayı girin (örn. 150.00)" }));
+                setForm(rule);
+                return;
+              }
+              setForm((prev) => ({ ...prev, [key]: value }));
+            }
+            mutation.mutate({ [key]: value });
+          }}
+        />
+        {errors[key] && <p className="mt-0.5 text-xs text-red-600">{errors[key]}</p>}
+      </div>
     );
   }
 
@@ -58,6 +89,7 @@ export default function AdminPriceRulesPage() {
         night_surcharge: "50.00",
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["price-rules"] }),
+    onError: () => window.alert("Yeni kural oluşturulamadı, lütfen tekrar deneyin."),
   });
 
   return (
@@ -74,7 +106,8 @@ export default function AdminPriceRulesPage() {
       </div>
       <p className="mb-4 text-xs text-zinc-400">
         Bir alanı düzenleyip alandan çıktığınızda (blur) değişiklik anında kaydedilir ve fiyat
-        motorunda Redis önbelleği otomatik güncellenir.
+        motorunda Redis önbelleği otomatik güncellenir. Ücret alanlarına virgül (,) ile de sayı
+        girebilirsiniz, otomatik olarak dönüştürülür.
       </p>
       <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white">
         <table className="w-full min-w-[600px] text-left text-sm">
