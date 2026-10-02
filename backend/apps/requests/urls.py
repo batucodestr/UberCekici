@@ -1,12 +1,15 @@
 from django.urls import path
 
 from .views import (
+    AcceptOfferView,
     AcceptRequestView,
     CreateServiceRequestView,
     GeocodeView,
     MyServiceRequestsView,
     OpenServiceRequestsView,
     RateRequestView,
+    RejectOfferView,
+    RequestOffersView,
     ServiceRequestDetailView,
     UpdateRequestStatusView,
 )
@@ -24,4 +27,7 @@ urlpatterns = [
         name="request-status",
     ),
     path("request/<int:pk>/rate/", RateRequestView.as_view(), name="request-rate"),
+    path("requests/<int:pk>/offers/", RequestOffersView.as_view(), name="request-offers"),
+    path("offers/<int:pk>/accept/", AcceptOfferView.as_view(), name="offer-accept"),
+    path("offers/<int:pk>/reject/", RejectOfferView.as_view(), name="offer-reject"),
 ]

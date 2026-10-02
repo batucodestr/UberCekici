@@ -1,33 +1,20 @@
 import { Navigate, Outlet } from "react-router-dom";
 
 import { useAuthStore } from "@/store/authStore";
-import type { Role } from "@/types";
 
-interface ProtectedRouteProps {
-  allowedRoles: Role[];
-}
+/** Panelin kök adresi — giriş sonrası ve "/" için varılan yer. */
+export const ADMIN_HOME = "/admin";
 
-export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
+/**
+ * Site tamamen yönetici panelidir: müşteri ve sürücü işlemleri mobil
+ * uygulamadan yürütülür, bu yüzden panelde yalnızca admin rolü geçerlidir.
+ */
+export function AdminRoute() {
   const user = useAuthStore((s) => s.user);
 
-  if (!user) {
+  if (!user || user.role !== "admin") {
     return <Navigate to="/giris" replace />;
   }
 
-  if (!allowedRoles.includes(user.role)) {
-    return <Navigate to={roleHome(user.role)} replace />;
-  }
-
   return <Outlet />;
-}
-
-export function roleHome(role: Role): string {
-  switch (role) {
-    case "admin":
-      return "/admin/dashboard";
-    case "driver":
-      return "/surucu";
-    default:
-      return "/musteri";
-  }
 }

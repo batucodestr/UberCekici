@@ -113,3 +113,58 @@ def reverse_geocode(lat: float, lng: float) -> str:
         return display_name or fallback
     except (requests.RequestException, ValueError):
         return fallback
+
+
+def _reverse_geocode_city_google(lat: float, lng: float) -> str | None:
+    try:
+        response = requests.get(
+            "https://maps.googleapis.com/maps/api/geocode/json",
+            params={
+                "latlng": f"{lat},{lng}",
+                "result_type": "administrative_area_level_1|locality",
+                "language": "tr",
+                "key": settings.GOOGLE_MAPS_API_KEY,
+            },
+            timeout=NOMINATIM_TIMEOUT_SECONDS,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        if payload.get("status") != "OK":
+            return None
+        # İl (administrative_area_level_1) fiyat kurallarındaki "city" alanıyla
+        # eşleşen seviye; yoksa ilçe/yerleşim adına düşülür.
+        for wanted in ("administrative_area_level_1", "locality"):
+            for result in payload.get("results", []):
+                for component in result.get("address_components", []):
+                    if wanted in component.get("types", []):
+                        return component.get("long_name")
+        return None
+    except (requests.RequestException, ValueError, KeyError, IndexError):
+        return None
+
+
+def reverse_geocode_city(lat: float, lng: float) -> str:
+    """Koordinatın bulunduğu ili döndürür; bulunamazsa boş string.
+
+    Boş string, fiyatlandırmada şehir kuralı yerine varsayılan kuralın
+    (PriceRule.city == "") kullanılması anlamına gelir.
+    """
+    if settings.GOOGLE_MAPS_API_KEY:
+        city = _reverse_geocode_city_google(lat, lng)
+        if city:
+            return city
+    try:
+        response = requests.get(
+            f"{settings.NOMINATIM_URL}/reverse",
+            params={"lat": lat, "lon": lng, "format": "jsonv2", "zoom": 10},
+            headers={"User-Agent": "UberCekici/1.0 (+https://ubercekici.local)"},
+            timeout=NOMINATIM_TIMEOUT_SECONDS,
+        )
+        response.raise_for_status()
+        address = response.json().get("address") or {}
+        for key in ("province", "state", "city", "town", "county"):
+            if address.get(key):
+                return address[key]
+        return ""
+    except (requests.RequestException, ValueError):
+        return ""

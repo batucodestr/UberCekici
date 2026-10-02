@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "apps.payments",
     "apps.notifications",
     "apps.analytics",
+    "apps.support",
 ]
 
 MIDDLEWARE = [
@@ -150,6 +151,7 @@ REST_FRAMEWORK = {
         "anon": "60/min",
         "user": "180/min",
         "auth": "10/min",
+        "support": "20/min",
     },
 }
 
@@ -191,7 +193,7 @@ SITE_USES_HTTPS = config("SITE_USES_HTTPS", default=False, cast=bool)
 
 SESSION_COOKIE_SECURE = SITE_USES_HTTPS
 CSRF_COOKIE_SECURE = SITE_USES_HTTPS
-SECURE_SSL_REDIRECT = SITE_USES_HTTPS
+SECURE_SSL_REDIRECT = False
 SECURE_HSTS_SECONDS = 31536000 if SITE_USES_HTTPS else 0
 SECURE_HSTS_INCLUDE_SUBDOMAINS = SITE_USES_HTTPS
 SECURE_HSTS_PRELOAD = SITE_USES_HTTPS

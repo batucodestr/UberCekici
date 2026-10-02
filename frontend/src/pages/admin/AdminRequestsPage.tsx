@@ -8,6 +8,7 @@ import type { RequestStatus, ServiceRequest } from "@/types";
 const STATUS_OPTIONS: RequestStatus[] = [
   "created",
   "searching",
+  "accepted",
   "driver_found",
   "en_route",
   "arrived",

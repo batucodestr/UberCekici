@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
@@ -10,12 +10,13 @@ export function LegalLayout({ title, children }: { title: string; children: Reac
       <header className="border-b border-zinc-100 px-4 py-4 sm:px-6">
         <div className="mx-auto flex max-w-3xl items-center gap-3">
           <img src="/logo.png" alt="Uber Çekici" className="h-8 w-8 rounded-lg object-cover" />
+          <span className="font-semibold text-zinc-800">Uber Çekici</span>
           <Link
-            to="/"
-            className="flex items-center gap-1.5 text-sm font-medium text-zinc-500 hover:text-zinc-800"
+            to="/giris"
+            className="ml-auto flex items-center gap-1.5 text-sm font-medium text-zinc-500 hover:text-zinc-800"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Ana Sayfa
+            <ShieldCheck className="h-4 w-4" />
+            Yönetici Girişi
           </Link>
         </div>
       </header>

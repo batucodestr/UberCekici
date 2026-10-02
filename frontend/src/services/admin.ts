@@ -6,6 +6,11 @@ import type {
   Paginated,
   PriceRule,
   Role,
+  SupportTicket,
+  TicketCategory,
+  TicketPriority,
+  TicketStats,
+  TicketStatus,
   User,
 } from "@/types";
 
@@ -100,6 +105,76 @@ export async function createPriceRule(
   const { data } = await api.post<PriceRule>("/price-rules/", payload);
   return data;
 }
+
+export interface TicketWritePayload {
+  category?: TicketCategory;
+  subject?: string;
+  message?: string;
+  contact_name?: string;
+  contact_phone?: string;
+  contact_email?: string;
+  status?: TicketStatus;
+  priority?: TicketPriority;
+  assigned_to?: number | null;
+  admin_note?: string;
+  response?: string;
+  service_request?: number | null;
+}
+
+export async function fetchAdminTickets(params?: ListParams): Promise<Paginated<SupportTicket>> {
+  const { data } = await api.get<Paginated<SupportTicket>>("/admin/tickets/", {
+    params: buildParams(params),
+  });
+  return data;
+}
+
+export async function fetchAdminTicket(id: number): Promise<SupportTicket> {
+  const { data } = await api.get<SupportTicket>(`/admin/tickets/${id}/`);
+  return data;
+}
+
+export async function fetchTicketStats(): Promise<TicketStats> {
+  const { data } = await api.get<TicketStats>("/admin/tickets/stats/");
+  return data;
+}
+
+export async function updateAdminTicket(
+  id: number,
+  payload: TicketWritePayload
+): Promise<SupportTicket> {
+  const { data } = await api.patch<SupportTicket>(`/admin/tickets/${id}/`, payload);
+  return data;
+}
+
+export async function createAdminTicket(payload: TicketWritePayload): Promise<SupportTicket> {
+  const { data } = await api.post<SupportTicket>("/admin/tickets/", payload);
+  return data;
+}
+
+export async function deleteAdminTicket(id: number): Promise<void> {
+  await api.delete(`/admin/tickets/${id}/`);
+}
+
+export const TICKET_CATEGORY_LABELS: Record<TicketCategory, string> = {
+  complaint: "Şikayet",
+  request: "İstek",
+  suggestion: "Öneri",
+  other: "Diğer",
+};
+
+export const TICKET_STATUS_LABELS: Record<TicketStatus, string> = {
+  new: "Yeni",
+  in_progress: "İnceleniyor",
+  resolved: "Çözüldü",
+  rejected: "Reddedildi",
+};
+
+export const TICKET_PRIORITY_LABELS: Record<TicketPriority, string> = {
+  low: "Düşük",
+  normal: "Normal",
+  high: "Yüksek",
+  urgent: "Acil",
+};
 
 export const ROLE_LABELS: Record<Role, string> = {
   customer: "Müşteri",

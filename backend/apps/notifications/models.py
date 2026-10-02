@@ -8,6 +8,7 @@ class Notification(models.Model):
         CANCELLED = "cancelled", "İptal"
         PAYMENT = "payment", "Ödeme"
         DRIVER_OFFLINE = "driver_offline", "Sürücü Çevrimdışı"
+        SUPPORT = "support", "Şikayet / İstek"
         GENERAL = "general", "Genel"
 
     recipient = models.ForeignKey(

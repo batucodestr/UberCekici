@@ -8,6 +8,7 @@ class ServiceRequest(models.Model):
     class Status(models.TextChoices):
         CREATED = "created", "Talep Alındı"
         SEARCHING = "searching", "Operatör Aranıyor"
+        ACCEPTED = "accepted", "Teklif Kabul Edildi"
         DRIVER_FOUND = "driver_found", "Sürücü Bulundu"
         EN_ROUTE = "en_route", "Yolda"
         ARRIVED = "arrived", "Geldi"
@@ -53,3 +54,36 @@ class ServiceRequest(models.Model):
 
     def __str__(self):
         return f"Talep #{self.id} - {self.get_status_display()}"
+
+
+class Offer(models.Model):
+    class Status(models.TextChoices):
+        PENDING = "pending", "Beklemede"
+        ACCEPTED = "accepted", "Kabul Edildi"
+        REJECTED = "rejected", "Reddedildi"
+
+    request = models.ForeignKey(ServiceRequest, on_delete=models.CASCADE, related_name="offers")
+    driver = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="offers"
+    )
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    eta_minutes = models.PositiveIntegerField(null=True, blank=True)
+    note = models.CharField(max_length=255, blank=True)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("amount", "created_at")
+        constraints = [
+            # Bir sürücünün aynı talepte aynı anda tek bir bekleyen teklifi olabilir;
+            # reddedilen sürücü yeni bir teklif verebilir.
+            models.UniqueConstraint(
+                fields=("request", "driver"),
+                condition=models.Q(status="pending"),
+                name="unique_pending_offer_per_driver",
+            ),
+        ]
+
+    def __str__(self):
+        return f"Teklif #{self.id} - Talep #{self.request_id} - {self.amount} ₺"

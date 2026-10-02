@@ -22,6 +22,7 @@ interface DataTableProps<T> {
   rowActions?: (row: T) => ReactNode;
   filters?: ReactNode;
   extraParams?: ListParams;
+  onRowClick?: (row: T) => void;
 }
 
 export function DataTable<T>({
@@ -33,6 +34,7 @@ export function DataTable<T>({
   rowActions,
   filters,
   extraParams,
+  onRowClick,
 }: DataTableProps<T>) {
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
@@ -83,7 +85,11 @@ export function DataTable<T>({
           </thead>
           <tbody className="divide-y divide-zinc-100">
             {data?.results.map((row) => (
-              <tr key={rowKey(row)} className="hover:bg-zinc-50">
+              <tr
+                key={rowKey(row)}
+                onClick={onRowClick ? () => onRowClick(row) : undefined}
+                className={`hover:bg-zinc-50 ${onRowClick ? "cursor-pointer" : ""}`}
+              >
                 {columns.map((col) => (
                   <td key={col.key} className="px-4 py-3 text-zinc-700">
                     {col.render
@@ -92,7 +98,10 @@ export function DataTable<T>({
                   </td>
                 ))}
                 {rowActions && (
-                  <td className="px-4 py-3 text-right">
+                  <td
+                    className="px-4 py-3 text-right"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <div className="flex justify-end gap-2">{rowActions(row)}</div>
                   </td>
                 )}

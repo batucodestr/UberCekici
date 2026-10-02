@@ -31,6 +31,8 @@ services:
       - internal
 
   ubercekici-backend:
+    ports:
+      - "8000:8000"
     build:
       context: ./backend
       args:

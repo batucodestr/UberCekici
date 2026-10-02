@@ -11,6 +11,7 @@ from apps.common.permissions import IsAdminRole
 from apps.drivers.models import Driver
 from apps.payments.models import Payment
 from apps.requests.models import ServiceRequest
+from apps.support.models import SupportTicket
 
 from .models import AuditLog
 from .serializers import AuditLogSerializer
@@ -30,6 +31,9 @@ class DashboardStatsView(APIView):
                 "weekly_revenue": serializers.FloatField(),
                 "completed_jobs": serializers.IntegerField(),
                 "average_eta_minutes": serializers.FloatField(),
+                "open_tickets": serializers.IntegerField(),
+                "urgent_tickets": serializers.IntegerField(),
+                "tickets_today": serializers.IntegerField(),
                 "service_distribution": serializers.ListField(),
             },
         )
@@ -59,6 +63,14 @@ class DashboardStatsView(APIView):
             avg=Avg("duration_minutes")
         )["avg"] or 0
 
+        open_tickets = SupportTicket.objects.filter(
+            status__in=SupportTicket.OPEN_STATUSES
+        ).count()
+        urgent_tickets = SupportTicket.objects.filter(
+            status__in=SupportTicket.OPEN_STATUSES, priority=SupportTicket.Priority.URGENT
+        ).count()
+        tickets_today = SupportTicket.objects.filter(created_at__gte=today_start).count()
+
         service_distribution = list(
             ServiceRequest.objects.values("service_type__name").annotate(total=Count("id"))
         )
@@ -72,6 +84,9 @@ class DashboardStatsView(APIView):
                 "weekly_revenue": float(weekly_revenue),
                 "completed_jobs": completed_jobs,
                 "average_eta_minutes": round(float(avg_eta), 1),
+                "open_tickets": open_tickets,
+                "urgent_tickets": urgent_tickets,
+                "tickets_today": tickets_today,
                 "service_distribution": service_distribution,
             }
         )

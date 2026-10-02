@@ -1,11 +1,18 @@
+from decimal import Decimal
+
 from rest_framework import serializers
 
-from apps.common.geo import estimate_duration_minutes, haversine_km, reverse_geocode
+from apps.common.geo import (
+    estimate_duration_minutes,
+    haversine_km,
+    reverse_geocode,
+    reverse_geocode_city,
+)
 from apps.pricing.serializers import ServiceTypeSerializer, VehicleTypeSerializer
 from apps.pricing.services import calculate_price
 from apps.users.serializers import UserSerializer
 
-from .models import ServiceRequest
+from .models import Offer, ServiceRequest
 
 
 class ServiceRequestCreateSerializer(serializers.ModelSerializer):
@@ -49,15 +56,25 @@ class ServiceRequestCreateSerializer(serializers.ModelSerializer):
 
         distance_km = haversine_km(pickup_lat, pickup_lng, dropoff_lat, dropoff_lng)
         duration_minutes = estimate_duration_minutes(distance_km)
+        city = reverse_geocode_city(pickup_lat, pickup_lng)
         price = calculate_price(
             distance_km=distance_km,
             vehicle_type=validated_data["vehicle_type"],
             service_type=validated_data["service_type"],
+            city=city,
         )
 
         validated_data["distance_km"] = distance_km
         validated_data["duration_minutes"] = duration_minutes
-        validated_data["price"] = price["total"]
+
+        client_price = self.initial_data.get("price")
+        if client_price is not None:
+            try:
+                validated_data["price"] = float(client_price)
+            except (ValueError, TypeError):
+                validated_data["price"] = price["total"]
+        else:
+            validated_data["price"] = price["total"]
         validated_data["pickup_address"] = reverse_geocode(pickup_lat, pickup_lng)
         validated_data["dropoff_address"] = reverse_geocode(dropoff_lat, dropoff_lng)
         validated_data["customer"] = self.context["request"].user
@@ -105,3 +122,55 @@ class RequestStatusUpdateSerializer(serializers.Serializer):
 class RateRequestSerializer(serializers.Serializer):
     rating = serializers.IntegerField(min_value=1, max_value=5)
     comment = serializers.CharField(required=False, allow_blank=True, default="")
+
+
+class OfferCreateSerializer(serializers.ModelSerializer):
+    amount = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=Decimal("1"))
+    eta_minutes = serializers.IntegerField(
+        min_value=1, max_value=1440, required=False, allow_null=True
+    )
+
+    class Meta:
+        model = Offer
+        fields = ("amount", "eta_minutes", "note")
+
+
+class OfferSerializer(serializers.ModelSerializer):
+    driver = UserSerializer(read_only=True)
+    driver_rating = serializers.SerializerMethodField()
+    vehicle_plate = serializers.SerializerMethodField()
+    vehicle_model = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Offer
+        fields = (
+            "id",
+            "request",
+            "driver",
+            "driver_rating",
+            "vehicle_plate",
+            "vehicle_model",
+            "amount",
+            "eta_minutes",
+            "note",
+            "status",
+            "created_at",
+            "updated_at",
+        )
+        read_only_fields = fields
+
+    @staticmethod
+    def _profile(obj):
+        return getattr(obj.driver, "driver_profile", None)
+
+    def get_driver_rating(self, obj) -> float | None:
+        profile = self._profile(obj)
+        return float(profile.rating) if profile else None
+
+    def get_vehicle_plate(self, obj) -> str:
+        profile = self._profile(obj)
+        return profile.vehicle_plate if profile else ""
+
+    def get_vehicle_model(self, obj) -> str:
+        profile = self._profile(obj)
+        return profile.vehicle_model if profile else ""

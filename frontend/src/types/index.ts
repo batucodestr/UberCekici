@@ -64,6 +64,7 @@ export interface Quote {
 export type RequestStatus =
   | "created"
   | "searching"
+  | "accepted"
   | "driver_found"
   | "en_route"
   | "arrived"
@@ -103,6 +104,9 @@ export interface DashboardStats {
   weekly_revenue: number;
   completed_jobs: number;
   average_eta_minutes: number;
+  open_tickets: number;
+  urgent_tickets: number;
+  tickets_today: number;
   service_distribution: { service_type__name: string; total: number }[];
 }
 
@@ -152,4 +156,53 @@ export interface PriceRule {
   night_end_hour: number;
   is_active: boolean;
   updated_at: string;
+}
+
+export type TicketCategory = "complaint" | "request" | "suggestion" | "other";
+export type TicketStatus = "new" | "in_progress" | "resolved" | "rejected";
+export type TicketPriority = "low" | "normal" | "high" | "urgent";
+export type TicketSource = "mobile" | "panel" | "phone" | "other";
+
+/** Mobil uygulamadan gelen şikayet/istek kaydı (yönetici görünümü). */
+export interface SupportTicket {
+  id: number;
+  created_by: number | null;
+  created_by_detail: User | null;
+  service_request: number | null;
+  category: TicketCategory;
+  category_display: string;
+  subject: string;
+  message: string;
+  contact_name: string;
+  contact_phone: string;
+  contact_email: string;
+  source: TicketSource;
+  source_display: string;
+  status: TicketStatus;
+  status_display: string;
+  priority: TicketPriority;
+  priority_display: string;
+  assigned_to: number | null;
+  assigned_to_username: string | null;
+  admin_note: string;
+  response: string;
+  responded_at: string | null;
+  resolved_at: string | null;
+  resolved_by: number | null;
+  resolved_by_username: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TicketStats {
+  total: number;
+  open: number;
+  new: number;
+  in_progress: number;
+  resolved: number;
+  rejected: number;
+  urgent_open: number;
+  today: number;
+  last_7_days: number;
+  by_category: { category: TicketCategory; total: number }[];
 }

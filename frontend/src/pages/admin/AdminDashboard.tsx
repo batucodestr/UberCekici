@@ -1,13 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
+import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { AdminLiveMap } from "@/components/AdminLiveMap";
-import { fetchDashboardStats } from "@/services/admin";
+import { TicketCategoryBadge, TicketStatusBadge } from "@/components/admin/TicketBadges";
+import { fetchAdminTickets, fetchDashboardStats } from "@/services/admin";
 
 export default function AdminDashboard() {
   const { data: stats } = useQuery({
     queryKey: ["admin-dashboard"],
     queryFn: fetchDashboardStats,
     refetchInterval: 15000,
+  });
+
+  const { data: latestTickets } = useQuery({
+    queryKey: ["admin-tickets", "dashboard-latest"],
+    queryFn: () => fetchAdminTickets({ ordering: "-created_at" }),
+    refetchInterval: 30000,
   });
 
   const cards = [
@@ -18,6 +27,12 @@ export default function AdminDashboard() {
     { label: "Haftalık Ciro", value: stats ? `${stats.weekly_revenue.toFixed(2)} ₺` : "-" },
     { label: "Tamamlanan İş", value: stats?.completed_jobs ?? "-" },
     { label: "Ortalama ETA", value: stats ? `${stats.average_eta_minutes} dk` : "-" },
+  ];
+
+  const ticketCards = [
+    { label: "Açık Şikayet / İstek", value: stats?.open_tickets ?? "-", highlight: true },
+    { label: "Acil (açık)", value: stats?.urgent_tickets ?? "-", highlight: false },
+    { label: "Bugün Gelen", value: stats?.tickets_today ?? "-", highlight: false },
   ];
 
   return (
@@ -31,6 +46,52 @@ export default function AdminDashboard() {
             <p className="mt-1 text-2xl font-bold text-zinc-900">{card.value}</p>
           </div>
         ))}
+      </div>
+
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {ticketCards.map((card) => (
+          <div
+            key={card.label}
+            className={`card ${card.highlight ? "!border-amber-200 !bg-amber-50" : ""}`}
+          >
+            <p className="text-xs text-zinc-500">{card.label}</p>
+            <p className="mt-1 text-2xl font-bold text-zinc-900">{card.value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="card mt-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="font-semibold text-zinc-800">Son Şikayet &amp; İstekler</h2>
+          <Link
+            to="/admin/tickets"
+            className="flex items-center gap-1 text-sm font-medium text-zinc-500 hover:text-primary-600"
+          >
+            Tümünü gör
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+        <div className="divide-y divide-zinc-100">
+          {latestTickets?.results.slice(0, 5).map((ticket) => (
+            <Link
+              key={ticket.id}
+              to="/admin/tickets"
+              className="flex items-center gap-3 py-2.5 text-sm hover:bg-zinc-50"
+            >
+              <TicketCategoryBadge category={ticket.category} />
+              <span className="min-w-0 flex-1 truncate font-medium text-zinc-800">
+                {ticket.subject}
+              </span>
+              <span className="hidden text-xs text-zinc-400 sm:inline">
+                {new Date(ticket.created_at).toLocaleString("tr-TR")}
+              </span>
+              <TicketStatusBadge status={ticket.status} />
+            </Link>
+          ))}
+          {latestTickets?.results.length === 0 && (
+            <p className="py-2 text-sm text-zinc-400">Henüz şikayet veya istek yok.</p>
+          )}
+        </div>
       </div>
 
       <div className="card mt-6 !p-0 overflow-hidden">

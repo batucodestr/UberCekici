@@ -2,6 +2,29 @@
 
 7/24 çekici ve yol yardım platformu. Django REST Framework + React/TypeScript ile geliştirilmiş, Docker Compose ile tek komutla ayağa kalkan bir MVP iskeleti.
 
+## Bu Site = Yönetici Kontrol Paneli
+
+Müşteri çağırma ve müşteri işlemleri **mobil uygulamada** yürütülür. Bu repodaki web arayüzü tamamen **yönetici/admin kontrol panelidir**:
+
+- İlk ekran giriştir (`/giris`) ve yalnızca `admin` rolündeki hesaplar panele girebilir. Doğru şifreyle giren müşteri/sürücü hesabının oturumu anında kapatılır ve uyarı gösterilir.
+- Panel `/admin` altındadır: Dashboard, **Şikayet & İstek**, Talepler, Çekiciler, Kullanıcılar, Fiyat Kuralları, Sistem Logları, Hesabım.
+- Web'de müşteri/sürücü ekranı ve kayıt formu yoktur. `POST /api/auth/register/` ve müşteri/sürücü API uçları mobil uygulama için açık kalmıştır.
+- Herkese açık kalan tek içerik yasal metinlerdir (`/kvkk`, `/gizlilik-sozlesmesi`, `/kullanim-sartlari`) — mobil uygulama ve uygulama mağazası bağlantıları bunlara ihtiyaç duyar.
+
+### Şikayet & İstek Modülü (`apps.support`)
+
+Mobil uygulamadan gelen şikayet/istek/öneri kayıtları panele düşer.
+
+| Uç | Kim | Açıklama |
+|---|---|---|
+| `POST /api/support/tickets/` | müşteri/sürücü (mobil) | Yeni şikayet/istek açar; iletişim bilgisi boş bırakılırsa hesaptan doldurulur |
+| `GET /api/support/tickets/` | müşteri/sürücü (mobil) | Kendi kayıtlarını ve yöneticinin yazdığı yanıtı listeler |
+| `GET /api/support/tickets/{id}/` | müşteri/sürücü (mobil) | Tek kayıt |
+| `GET/POST/PATCH/DELETE /api/admin/tickets/` | yalnızca admin | Panel yönetimi (durum, öncelik, atama, iç not, müşteriye yanıt) |
+| `GET /api/admin/tickets/stats/` | yalnızca admin | Açık/yeni/acil/bugün sayaçları |
+
+Yeni kayıt açıldığında tüm yöneticilere `Notification` (kategori: `support`) düşer ve mevcut bildirim WebSocket'i üzerinden anlık iletilir. Yönetici "Müşteriye Yanıt" alanını doldurduğunda kaydı açan kullanıcıya bildirim gider; durum `Çözüldü`/`Reddedildi` olduğunda kapanış zamanı ve kapatan yönetici kaydedilir. Telefonla gelen şikayetler için panelden de kayıt açılabilir (`source=panel`).
+
 ## Mimarî
 
 - **Backend:** Django 5, DRF, Simple JWT, Channels (WebSocket), Celery + Celery Beat, PostgreSQL, Redis
@@ -17,8 +40,7 @@ docker compose --profile standalone up -d --build
 
 `--profile standalone` projenin kendi Caddy'sini de (80/443, otomatik HTTPS) ayağa kaldırır. Servisler ayağa kalktıktan sonra:
 
-- Uygulama: http://localhost
-- Yönetici Paneli (React): http://localhost/admin/dashboard
+- Yönetici Paneli (React): http://localhost/admin (giriş: http://localhost/giris)
 - Django Admin (yalnızca arka uç referansı): http://localhost/django-admin
 - API dokümantasyonu (Swagger): http://localhost/api/docs/
 
@@ -128,7 +150,6 @@ ws/admin/live/?token=<access>      → admin canlı harita ve sipariş akışı
 
 Kapsam net biçimde büyük olduğu için bu ilk teslimat sağlam ve çalışır bir **iskelete** odaklanır. Aşağıdakiler bilinçli olarak sona bırakıldı:
 
-- React tarafında tam CRUD/export/bulk-action'lı "Modern Admin Panel" (şu an Django Admin + basit React özet dashboard var)
 - GeoDjango/OSRM/Nominatim canlı entegrasyonu (şu an düz PostgreSQL + kuş uçuşu mesafe hesaplama; OSRM_URL/NOMINATIM_URL değişkenleri hazır, entegrasyon noktaları `apps/pricing/services.py` ve `NewRequestPage.tsx`)
 - Şehir bazlı SEO sayfaları ve schema.org markup
 - Sürücü belge onay akışı için dosya yükleme arayüzü (model hazır, UI eksik)

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ServiceRequest
+from .models import Offer, ServiceRequest
 
 
 @admin.register(ServiceRequest)
@@ -17,3 +17,10 @@ class ServiceRequestAdmin(admin.ModelAdmin):
     )
     list_filter = ("status", "vehicle_type", "service_type")
     search_fields = ("customer__username", "driver__username", "contact_phone")
+
+
+@admin.register(Offer)
+class OfferAdmin(admin.ModelAdmin):
+    list_display = ("id", "request", "driver", "amount", "eta_minutes", "status", "created_at")
+    list_filter = ("status",)
+    search_fields = ("driver__username", "request__id")
