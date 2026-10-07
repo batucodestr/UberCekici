@@ -67,14 +67,10 @@ class ServiceRequestCreateSerializer(serializers.ModelSerializer):
         validated_data["distance_km"] = distance_km
         validated_data["duration_minutes"] = duration_minutes
 
-        client_price = self.initial_data.get("price")
-        if client_price is not None:
-            try:
-                validated_data["price"] = float(client_price)
-            except (ValueError, TypeError):
-                validated_data["price"] = price["total"]
-        else:
-            validated_data["price"] = price["total"]
+        # Fiyat her zaman sunucuda hesaplanır. Client'ın gönderdiği "price"
+        # alanı bilerek yok sayılır; aksi halde müşteri kendi ücretini
+        # belirleyebilirdi (bkz. test_pricing_integrity).
+        validated_data["price"] = price["total"]
         validated_data["pickup_address"] = reverse_geocode(pickup_lat, pickup_lng)
         validated_data["dropoff_address"] = reverse_geocode(dropoff_lat, dropoff_lng)
         validated_data["customer"] = self.context["request"].user

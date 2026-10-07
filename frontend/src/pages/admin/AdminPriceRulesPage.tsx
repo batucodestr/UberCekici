@@ -81,13 +81,19 @@ export default function AdminPriceRulesPage() {
   const { data: rules = [] } = useQuery({ queryKey: ["price-rules"], queryFn: fetchPriceRules });
 
   const createMutation = useMutation({
-    mutationFn: () =>
-      createPriceRule({
+    mutationFn: () => {
+      // Yeni kural PASİF doğar: şehir/fiyat doldurulmadan müşteriye
+      // uygulanmasın. Varsayılanlar, kod içindeki eskimiş sabitler yerine
+      // mevcut bir kuraldan kopyalanır.
+      const template = rules.find((r) => r.is_active) ?? rules[0];
+      return createPriceRule({
         city: `Yeni Şehir ${rules.length + 1}`,
-        base_fee: "150.00",
-        price_per_km: "12.00",
-        night_surcharge: "50.00",
-      }),
+        base_fee: template?.base_fee ?? "150.00",
+        price_per_km: template?.price_per_km ?? "12.00",
+        night_surcharge: template?.night_surcharge ?? "50.00",
+        is_active: false,
+      });
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["price-rules"] }),
     onError: () => window.alert("Yeni kural oluşturulamadı, lütfen tekrar deneyin."),
   });
