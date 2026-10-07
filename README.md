@@ -55,7 +55,7 @@ docker compose up -d --build
 İlgili dosyalar:
 
 - `docker-compose.yml` — varsayılan (profilsiz) mod = edge-entegre; `--profile standalone` = kendi Caddy'siyle bağımsız mod.
-- `infra/caddy/ubercekici.site.caddy` — paylaşılan Caddy'ye eklenen site bloğunun repodaki referans kopyası (konteynerler tarafından okunmaz; gerçek dosya bu VPS'te `/opt/trugc/Caddyfile`).
+- `infra/caddy/kurtaricim.com.tr.caddy` — paylaşılan Caddy'ye eklenen site bloğunun repodaki referans kopyası (konteynerler tarafından okunmaz; gerçek dosya bu VPS'te `/opt/trugc/Caddyfile`).
 - `infra/nginx/static.conf` — `static` servisinin `/static` ve `/media`'yı `edge` ağı üzerinden paylaşılan Caddy'ye açan nginx konfigürasyonu.
 
 İlk deploy sonrası (RUN_SEED=false olduğu için demo hesaplar oluşmaz):
@@ -64,7 +64,7 @@ docker compose up -d --build
 docker compose exec backend python manage.py createsuperuser
 ```
 
-Paylaşılan Caddy'ye eklenen `ubercekici.com` bloğunun aktif olması için (zero-downtime, container yeniden başlamaz):
+Paylaşılan Caddy'ye eklenen `xn--kurtarcm-ykbb.com.tr` (kurtarıcım.com.tr) bloğunun aktif olması için (zero-downtime, container yeniden başlamaz):
 
 ```bash
 docker exec trugc-caddy-1 caddy reload --config /etc/caddy/Caddyfile

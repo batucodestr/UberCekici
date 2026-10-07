@@ -170,7 +170,7 @@ SIMPLE_JWT = {
 REFRESH_COOKIE_NAME = "refresh_token"
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Uber Çekici API",
+    "TITLE": "Kurtarıcım API",
     "DESCRIPTION": "Çekici çağırma platformu REST API",
     "VERSION": "1.0.0",
 }

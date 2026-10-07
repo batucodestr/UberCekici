@@ -77,7 +77,7 @@ def geocode(query: str) -> dict | None:
         response = requests.get(
             f"{settings.NOMINATIM_URL}/search",
             params={"q": query, "format": "jsonv2", "limit": 1, "countrycodes": "tr"},
-            headers={"User-Agent": "UberCekici/1.0 (+https://ubercekici.local)"},
+            headers={"User-Agent": "Kurtaricim/1.0 (+https://xn--kurtarcm-ykbb.com.tr)"},
             timeout=NOMINATIM_TIMEOUT_SECONDS,
         )
         response.raise_for_status()
@@ -105,7 +105,7 @@ def reverse_geocode(lat: float, lng: float) -> str:
         response = requests.get(
             f"{settings.NOMINATIM_URL}/reverse",
             params={"lat": lat, "lon": lng, "format": "jsonv2", "zoom": 18},
-            headers={"User-Agent": "UberCekici/1.0 (+https://ubercekici.local)"},
+            headers={"User-Agent": "Kurtaricim/1.0 (+https://xn--kurtarcm-ykbb.com.tr)"},
             timeout=NOMINATIM_TIMEOUT_SECONDS,
         )
         response.raise_for_status()
@@ -157,7 +157,7 @@ def reverse_geocode_city(lat: float, lng: float) -> str:
         response = requests.get(
             f"{settings.NOMINATIM_URL}/reverse",
             params={"lat": lat, "lon": lng, "format": "jsonv2", "zoom": 10},
-            headers={"User-Agent": "UberCekici/1.0 (+https://ubercekici.local)"},
+            headers={"User-Agent": "Kurtaricim/1.0 (+https://xn--kurtarcm-ykbb.com.tr)"},
             timeout=NOMINATIM_TIMEOUT_SECONDS,
         )
         response.raise_for_status()

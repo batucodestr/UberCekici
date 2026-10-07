@@ -9,8 +9,8 @@ export function LegalLayout({ title, children }: { title: string; children: Reac
     <div className="flex min-h-screen flex-col bg-white">
       <header className="border-b border-zinc-100 px-4 py-4 sm:px-6">
         <div className="mx-auto flex max-w-3xl items-center gap-3">
-          <img src="/logo.png" alt="Uber Çekici" className="h-8 w-8 rounded-lg object-cover" />
-          <span className="font-semibold text-zinc-800">Uber Çekici</span>
+          <img src="/logo.jpeg" alt="Kurtarıcım" className="h-8 w-8 rounded-lg object-cover" />
+          <span className="font-semibold text-zinc-800">Kurtarıcım</span>
           <Link
             to="/giris"
             className="ml-auto flex items-center gap-1.5 text-sm font-medium text-zinc-500 hover:text-zinc-800"

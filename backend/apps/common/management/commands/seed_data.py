@@ -43,7 +43,7 @@ class Command(BaseCommand):
         admin_user, created = User.objects.get_or_create(
             username="admin",
             defaults={
-                "email": "admin@ubercekici.local",
+                "email": "admin@kurtaricim.local",
                 "role": User.Role.ADMIN,
                 "is_staff": True,
                 "is_superuser": True,
@@ -99,7 +99,7 @@ class Command(BaseCommand):
             user, created = User.objects.get_or_create(
                 username=username,
                 defaults={
-                    "email": f"{username}@ubercekici.local",
+                    "email": f"{username}@kurtaricim.local",
                     "role": User.Role.DRIVER,
                     "phone_number": f"05{random.randint(300000000, 599999999)}",
                 },
@@ -133,7 +133,7 @@ class Command(BaseCommand):
             user, created = User.objects.get_or_create(
                 username=username,
                 defaults={
-                    "email": f"{username}@ubercekici.local",
+                    "email": f"{username}@kurtaricim.local",
                     "role": User.Role.CUSTOMER,
                     "phone_number": f"05{random.randint(300000000, 599999999)}",
                 },

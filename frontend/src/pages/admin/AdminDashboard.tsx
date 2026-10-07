@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import { AdminLiveMap } from "@/components/AdminLiveMap";
 import { TicketCategoryBadge, TicketStatusBadge } from "@/components/admin/TicketBadges";
 import { fetchAdminTickets, fetchDashboardStats } from "@/services/admin";
 
@@ -92,13 +91,6 @@ export default function AdminDashboard() {
             <p className="py-2 text-sm text-zinc-400">Henüz şikayet veya istek yok.</p>
           )}
         </div>
-      </div>
-
-      <div className="card mt-6 !p-0 overflow-hidden">
-        <div className="p-4 pb-0">
-          <h2 className="mb-3 font-semibold text-zinc-800">Canlı Çekici Haritası</h2>
-        </div>
-        <AdminLiveMap />
       </div>
 
       <div className="card mt-6">

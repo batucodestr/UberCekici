@@ -12,8 +12,11 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 
+import { CompanyFacts } from "@/components/legal/CompanyFacts";
+import { PaymentBadges } from "@/components/legal/PaymentBadges";
+import { LEGAL_LINKS } from "@/lib/legalLinks";
 import { fetchTicketStats } from "@/services/admin";
 import { logoutUser } from "@/services/auth";
 import { useAuthStore } from "@/store/authStore";
@@ -28,6 +31,7 @@ const NAV_ITEMS = [
   { to: "/admin/audit-logs", label: "Sistem Logları", icon: FileClock },
   { to: "/admin/profile", label: "Hesabım", icon: UserCog },
 ];
+
 
 export function AdminLayout() {
   const [collapsed, setCollapsed] = useState(false);
@@ -51,10 +55,10 @@ export function AdminLayout() {
         }`}
       >
         <div className="flex items-center gap-2 border-b border-zinc-100 px-4 py-4">
-          <img src="/logo.png" alt="Uber Çekici" className="h-8 w-8 rounded-lg object-cover" />
+          <img src="/logo.jpeg" alt="Kurtarıcım" className="h-8 w-8 rounded-lg object-cover" />
           {!collapsed && (
             <div className="min-w-0">
-              <p className="truncate font-bold leading-tight text-zinc-900">Uber Çekici</p>
+              <p className="truncate font-bold leading-tight text-zinc-900">Kurtarıcım</p>
               <p className="text-[11px] text-zinc-400">Yönetici Paneli</p>
             </div>
           )}
@@ -110,8 +114,29 @@ export function AdminLayout() {
         </div>
       </aside>
 
-      <div className="min-w-0 flex-1">
-        <Outlet />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex-1">
+          <Outlet />
+        </div>
+
+        {/* iyzico şartı: ödeme logoları panel içinde de görünür olmalı. */}
+        <footer className="border-t border-zinc-100 bg-white px-6 py-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <PaymentBadges />
+            <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
+              {LEGAL_LINKS.map((link) => (
+                <li key={link.to}>
+                  <Link to={link.to} className="hover:text-primary-600">
+                    {link.short}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="mt-5 border-t border-zinc-100 pt-5">
+            <CompanyFacts variant="grid" />
+          </div>
+        </footer>
       </div>
     </div>
   );

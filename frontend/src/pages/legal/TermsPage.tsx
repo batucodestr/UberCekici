@@ -3,14 +3,11 @@ import { LegalLayout } from "@/components/legal/LegalLayout";
 export default function TermsPage() {
   return (
     <LegalLayout title="Kullanım Şartları">
-      <p className="rounded-xl bg-amber-50 p-4 text-xs text-amber-800">
-        Bu metin taslak niteliğindedir; yayına almadan önce hukuk danışmanınıza incelettirin.
-      </p>
 
       <section>
         <h2 className="mb-2 text-lg font-bold text-zinc-900">1. Taraflar ve Kabul</h2>
         <p>
-          Bu Kullanım Şartları, Uber Çekici platformunu ("Platform") kullanan tüm müşteri ve
+          Bu Kullanım Şartları, Kurtarıcım platformunu ("Platform") kullanan tüm müşteri ve
           sürücüleri bağlar. Platforma kayıt olarak bu şartları kabul etmiş sayılırsınız.
         </p>
       </section>

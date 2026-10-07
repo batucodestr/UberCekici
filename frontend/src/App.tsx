@@ -11,8 +11,14 @@ import AdminRequestsPage from "@/pages/admin/AdminRequestsPage";
 import AdminTicketsPage from "@/pages/admin/AdminTicketsPage";
 import AdminUsersPage from "@/pages/admin/AdminUsersPage";
 import LoginPage from "@/pages/auth/LoginPage";
+import AboutPage from "@/pages/legal/AboutPage";
+import ContactPage from "@/pages/legal/ContactPage";
+import DeliveryReturnPage from "@/pages/legal/DeliveryReturnPage";
+import DistanceSalesPage from "@/pages/legal/DistanceSalesPage";
 import KvkkPage from "@/pages/legal/KvkkPage";
+import PreInfoPage from "@/pages/legal/PreInfoPage";
 import PrivacyPage from "@/pages/legal/PrivacyPage";
+import ServicesPage from "@/pages/legal/ServicesPage";
 import TermsPage from "@/pages/legal/TermsPage";
 
 /**
@@ -29,6 +35,12 @@ export default function App() {
       <Route path="/kvkk" element={<KvkkPage />} />
       <Route path="/gizlilik-sozlesmesi" element={<PrivacyPage />} />
       <Route path="/kullanim-sartlari" element={<TermsPage />} />
+      <Route path="/teslimat-ve-iade" element={<DeliveryReturnPage />} />
+      <Route path="/mesafeli-satis-sozlesmesi" element={<DistanceSalesPage />} />
+      <Route path="/on-bilgilendirme-formu" element={<PreInfoPage />} />
+      <Route path="/hakkimizda" element={<AboutPage />} />
+      <Route path="/hizmetlerimiz" element={<ServicesPage />} />
+      <Route path="/iletisim" element={<ContactPage />} />
 
       <Route element={<AdminRoute />}>
         <Route path="/admin" element={<AdminLayout />}>

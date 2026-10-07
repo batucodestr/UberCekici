@@ -3,16 +3,11 @@ import { LegalLayout } from "@/components/legal/LegalLayout";
 export default function KvkkPage() {
   return (
     <LegalLayout title="KVKK Aydınlatma Metni">
-      <p className="rounded-xl bg-amber-50 p-4 text-xs text-amber-800">
-        Bu metin, 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında bilgilendirme
-        amacıyla hazırlanmış bir taslaktır. Yayına almadan önce bir hukuk danışmanına
-        onaylatmanızı öneririz.
-      </p>
 
       <section>
         <h2 className="mb-2 text-lg font-bold text-zinc-900">1. Veri Sorumlusu</h2>
         <p>
-          Uber Çekici platformu ("Platform"), 6698 sayılı KVKK uyarınca "veri sorumlusu" sıfatıyla,
+          Kurtarıcım platformu ("Platform"), 6698 sayılı KVKK uyarınca "veri sorumlusu" sıfatıyla,
           kişisel verilerinizi aşağıda açıklanan kapsamda işlemektedir.
         </p>
       </section>
@@ -58,8 +53,8 @@ export default function KvkkPage() {
           işlenmişse buna ilişkin bilgi talep etme, işlenme amacını ve amacına uygun kullanılıp
           kullanılmadığını öğrenme, düzeltilmesini/silinmesini isteme ve işlemeye itiraz etme
           haklarına sahipsiniz. Taleplerinizi{" "}
-          <a href="/destek" className="text-primary-600 underline">
-            Destek
+          <a href="/iletisim" className="text-primary-600 underline">
+            İletişim
           </a>{" "}
           sayfasından bize iletebilirsiniz.
         </p>

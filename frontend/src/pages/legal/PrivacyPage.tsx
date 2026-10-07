@@ -3,14 +3,11 @@ import { LegalLayout } from "@/components/legal/LegalLayout";
 export default function PrivacyPage() {
   return (
     <LegalLayout title="Gizlilik Sözleşmesi">
-      <p className="rounded-xl bg-amber-50 p-4 text-xs text-amber-800">
-        Bu metin taslak niteliğindedir; yayına almadan önce hukuk danışmanınıza incelettirin.
-      </p>
 
       <section>
         <h2 className="mb-2 text-lg font-bold text-zinc-900">1. Kapsam</h2>
         <p>
-          Bu Gizlilik Sözleşmesi, Uber Çekici platformunu ("Platform") kullanan müşteri ve
+          Bu Gizlilik Sözleşmesi, Kurtarıcım platformunu ("Platform") kullanan müşteri ve
           sürücülerin kişisel verilerinin nasıl toplandığını, kullanıldığını ve korunduğunu
           açıklar.
         </p>
@@ -49,8 +46,8 @@ export default function PrivacyPage() {
         <p>
           Kişisel verileriniz, hesabınız aktif olduğu sürece ve yasal saklama yükümlülükleri
           gerektirdiği ölçüde tutulur. Hesap kapatma taleplerinizi{" "}
-          <a href="/destek" className="text-primary-600 underline">
-            Destek
+          <a href="/iletisim" className="text-primary-600 underline">
+            İletişim
           </a>{" "}
           üzerinden iletebilirsiniz.
         </p>
@@ -60,8 +57,8 @@ export default function PrivacyPage() {
         <h2 className="mb-2 text-lg font-bold text-zinc-900">6. İletişim</h2>
         <p>
           Gizlilikle ilgili sorularınız için{" "}
-          <a href="/destek" className="text-primary-600 underline">
-            Destek
+          <a href="/iletisim" className="text-primary-600 underline">
+            İletişim
           </a>{" "}
           sayfasından bize ulaşabilirsiniz.
         </p>
