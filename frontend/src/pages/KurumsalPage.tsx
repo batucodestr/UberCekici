@@ -45,7 +45,17 @@ export default function KurumsalPage() {
     <div className="min-h-screen bg-white">
       <PublicNavbar />
 
-      <section className="bg-zinc-950 px-4 py-20 text-center text-white">
+      <section className="relative isolate overflow-hidden bg-zinc-950 px-4 py-24 text-center text-white">
+        <img
+          src="/img/yol-yardim.jpg"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 h-full w-full object-cover"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-zinc-950/85"
+        />
         <h1 className="mx-auto max-w-2xl text-3xl font-extrabold sm:text-4xl">
           Şirketiniz için çekici mi arıyorsunuz?
         </h1>

@@ -58,11 +58,23 @@ export default function HomePage() {
     <div className="min-h-screen bg-white">
       <PublicNavbar dark />
 
-      <section className="bg-zinc-950 px-4 py-24 text-center text-white">
+      <section className="relative isolate overflow-hidden bg-zinc-950 px-4 py-28 text-white sm:py-36">
+        {/* Dekoratif arka plan; metin kontrastı üstteki gradyanla garanti edilir. */}
+        <img
+          src="/img/hero.jpg"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 h-full w-full object-cover object-right"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-zinc-950 via-zinc-950/90 to-zinc-950/55"
+        />
+        <div className="mx-auto max-w-6xl text-center sm:text-left">
         <motion.h1
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mx-auto max-w-3xl text-4xl font-extrabold tracking-tight sm:text-5xl"
+          className="max-w-2xl text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl"
         >
           Yolda kaldığınızda <span className="text-zinc-300">yanınızdayız</span>
         </motion.h1>
@@ -70,7 +82,7 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mx-auto mt-4 max-w-xl text-lg text-zinc-400"
+          className="mt-5 max-w-xl text-lg text-zinc-300"
         >
           {COMPANY.brandName} ile çekici, kurtarma ve yol yardımı hizmeti; şeffaf fiyat ve
           mobil uygulama üzerinden canlı takip.
@@ -79,7 +91,7 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="mt-8 flex flex-wrap justify-center gap-3"
+          className="mt-9 flex flex-wrap justify-center gap-3 sm:justify-start"
         >
           <a
             href={`tel:${COMPANY.phoneHref}`}
@@ -95,6 +107,7 @@ export default function HomePage() {
             Hizmetler ve Fiyatlar
           </Link>
         </motion.div>
+        </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-16">
@@ -182,7 +195,18 @@ export default function HomePage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-16">
-        <div className="flex flex-col items-center gap-6 rounded-3xl bg-zinc-950 p-10 text-center text-white sm:flex-row sm:text-left">
+        <div className="relative isolate flex flex-col items-center gap-6 overflow-hidden rounded-3xl bg-zinc-950 p-10 text-center text-white sm:flex-row sm:text-left">
+          <img
+            src="/img/cekici.jpg"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 h-full w-full object-cover"
+            loading="lazy"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 bg-gradient-to-r from-zinc-950 via-zinc-950/92 to-zinc-950/70"
+          />
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/10">
             <Building2 className="h-7 w-7" />
           </div>
