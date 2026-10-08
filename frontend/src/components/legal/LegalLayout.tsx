@@ -1,25 +1,12 @@
-import { ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
 
 import { Footer } from "@/components/layout/Footer";
+import { PublicNavbar } from "@/components/layout/PublicNavbar";
 
 export function LegalLayout({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      <header className="border-b border-zinc-100 px-4 py-4 sm:px-6">
-        <div className="mx-auto flex max-w-3xl items-center gap-3">
-          <img src="/logo.jpeg" alt="Kurtarıcım" className="h-8 w-8 rounded-lg object-cover" />
-          <span className="font-semibold text-zinc-800">Kurtarıcım</span>
-          <Link
-            to="/giris"
-            className="ml-auto flex items-center gap-1.5 text-sm font-medium text-zinc-500 hover:text-zinc-800"
-          >
-            <ShieldCheck className="h-4 w-4" />
-            Yönetici Girişi
-          </Link>
-        </div>
-      </header>
+      <PublicNavbar />
 
       <main className="flex-1 px-4 py-12 sm:px-6">
         <div className="mx-auto max-w-3xl">

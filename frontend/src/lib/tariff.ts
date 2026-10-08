@@ -3,7 +3,7 @@
  * sitesinde görünür olmasını şart koşar.
  *
  * Buradaki değerler, yönetici panelindeki "Fiyat Kuralları", "Araç Tipleri" ve
- * "Hizmet Tipleri" kayıtlarından alınmıştır (son eşitleme: 07.10.2026).
+ * "Hizmet Tipleri" kayıtlarından alınmıştır (son eşitleme: 08.10.2026).
  *
  * TODO(iyzico): Panelde tarifeyi değiştirdiğinizde bu dosyayı da güncelleyin.
  * Sitede yazan fiyatla tahsil edilen fiyatın farklı olması hem iyzico hem
@@ -27,13 +27,24 @@ export const CITY_TARIFFS: {
   { city: "Manisa", baseFee: 750, pricePerKm: 50, nightSurcharge: 60 },
 ];
 
+/**
+ * Listede yer almayan şehirler için uygulanan genel tarife — panelde şehir
+ * alanı boş olan "(genel)" fiyat kuralına karşılık gelir. Değerler, tanımlı
+ * şehirlerin ortalaması yuvarlanarak belirlenmiştir.
+ */
+export const GENERAL_TARIFF = {
+  baseFee: 750,
+  pricePerKm: 50,
+  nightSurcharge: 60,
+} as const;
+
 export const TARIFF = {
   /** Gece tarifesinin başladığı saat. */
   nightStartHour: 22,
   /** Gece tarifesinin bittiği saat. */
   nightEndHour: 6,
   /** Tarifenin son güncellendiği tarih — sitede yayınlanır. */
-  updatedAt: "07.10.2026",
+  updatedAt: "08.10.2026",
 } as const;
 
 /**

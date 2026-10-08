@@ -6,6 +6,8 @@
 export const LEGAL_LINKS = [
   { to: "/hakkimizda", label: "Hakkımızda", short: "Hakkımızda" },
   { to: "/hizmetlerimiz", label: "Hizmetler ve Fiyatlandırma", short: "Hizmetler" },
+  { to: "/kurumsal-cozumler", label: "Kurumsal Çözümler", short: "Kurumsal" },
+  { to: "/sss", label: "Sıkça Sorulan Sorular", short: "S.S.S." },
   { to: "/iletisim", label: "İletişim", short: "İletişim" },
   { to: "/on-bilgilendirme-formu", label: "Ön Bilgilendirme Formu", short: "Ön Bilgilendirme" },
   { to: "/mesafeli-satis-sozlesmesi", label: "Mesafeli Satış Sözleşmesi", short: "Mesafeli Satış" },

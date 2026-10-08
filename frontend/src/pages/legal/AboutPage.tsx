@@ -47,8 +47,8 @@ export default function AboutPage() {
           {CITY_TARIFFS.map((t) => t.city).join(", ")} şehirlerinde karşılanmaktadır. Her şehrin
           kendi tarifesi{" "}
           <span className="font-semibold text-zinc-700">Hizmetler ve Fiyatlandırma</span>{" "}
-          sayfasında yayınlanmaktadır. Şehirler arası çekim talepleri mesafeye göre
-          fiyatlandırılır.
+          sayfasında yayınlanmaktadır. Bu illerin dışındaki konumlar için genel tarifemiz
+          geçerlidir. Şehirler arası çekim talepleri mesafeye göre fiyatlandırılır.
         </p>
       </section>
 

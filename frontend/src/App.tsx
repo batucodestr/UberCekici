@@ -11,9 +11,12 @@ import AdminRequestsPage from "@/pages/admin/AdminRequestsPage";
 import AdminTicketsPage from "@/pages/admin/AdminTicketsPage";
 import AdminUsersPage from "@/pages/admin/AdminUsersPage";
 import LoginPage from "@/pages/auth/LoginPage";
+import HomePage from "@/pages/HomePage";
+import KurumsalPage from "@/pages/KurumsalPage";
 import AboutPage from "@/pages/legal/AboutPage";
 import ContactPage from "@/pages/legal/ContactPage";
 import DeliveryReturnPage from "@/pages/legal/DeliveryReturnPage";
+import FaqPage from "@/pages/legal/FaqPage";
 import DistanceSalesPage from "@/pages/legal/DistanceSalesPage";
 import KvkkPage from "@/pages/legal/KvkkPage";
 import PreInfoPage from "@/pages/legal/PreInfoPage";
@@ -22,15 +25,19 @@ import ServicesPage from "@/pages/legal/ServicesPage";
 import TermsPage from "@/pages/legal/TermsPage";
 
 /**
- * Site tamamen yönetici kontrol panelidir: ilk ekran giriş, sonrası panel.
- * Müşteri çağırma ve sürücü işlemleri mobil uygulamada yürütülür; burada
- * yalnızca mobil uygulamayı yöneten ekranlar ve müşteri şikayet/istekleri yer alır.
- * Yasal metinler (mobil uygulama ve mağaza bağlantıları için) herkese açıktır.
+ * Site iki katmandan oluşur:
+ *  - Halka açık yüz: tanıtım, hizmet/fiyat bilgisi, iletişim ve yasal metinler.
+ *    iyzico üye işyeri kriterleri bu katmanın yayında olmasını gerektirir.
+ *  - Yönetici paneli (/giris + /admin): mobil uygulamayı yöneten ekranlar.
+ * Müşteri çağırma ve sürücü işlemleri mobil uygulamada yürütülür.
  */
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<HomePage />} />
       <Route path="/giris" element={<LoginPage />} />
+      <Route path="/kurumsal-cozumler" element={<KurumsalPage />} />
+      <Route path="/sss" element={<FaqPage />} />
 
       <Route path="/kvkk" element={<KvkkPage />} />
       <Route path="/gizlilik-sozlesmesi" element={<PrivacyPage />} />
@@ -41,6 +48,8 @@ export default function App() {
       <Route path="/hakkimizda" element={<AboutPage />} />
       <Route path="/hizmetlerimiz" element={<ServicesPage />} />
       <Route path="/iletisim" element={<ContactPage />} />
+      {/* Eski /destek bağlantıları İletişim sayfasına taşındı. */}
+      <Route path="/destek" element={<Navigate to="/iletisim" replace />} />
 
       <Route element={<AdminRoute />}>
         <Route path="/admin" element={<AdminLayout />}>
@@ -58,7 +67,7 @@ export default function App() {
       {/* Eski /admin/dashboard/* bağlantıları panelin yeni köküne taşındı. */}
       <Route path="/admin/dashboard/*" element={<Navigate to={ADMIN_HOME} replace />} />
 
-      <Route path="*" element={<Navigate to={ADMIN_HOME} replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

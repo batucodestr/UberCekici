@@ -1,6 +1,12 @@
 import { LegalLayout } from "@/components/legal/LegalLayout";
 import { COMPANY } from "@/lib/company";
-import { CITY_TARIFFS, SERVICES, TARIFF, VEHICLE_MULTIPLIERS } from "@/lib/tariff";
+import {
+  CITY_TARIFFS,
+  GENERAL_TARIFF,
+  SERVICES,
+  TARIFF,
+  VEHICLE_MULTIPLIERS,
+} from "@/lib/tariff";
 
 /**
  * iyzico üye işyeri başvurusunun istediği "satılan hizmet ve fiyat bilgisi"
@@ -61,13 +67,20 @@ export default function ServicesPage() {
                   <td className="p-3">+{row.nightSurcharge} TL</td>
                 </tr>
               ))}
+              <tr className="border-b border-zinc-100 bg-zinc-50">
+                <td className="p-3 font-semibold text-zinc-700">Diğer şehirler</td>
+                <td className="p-3">{GENERAL_TARIFF.baseFee} TL</td>
+                <td className="p-3">{GENERAL_TARIFF.pricePerKm} TL / km</td>
+                <td className="p-3">+{GENERAL_TARIFF.nightSurcharge} TL</td>
+              </tr>
             </tbody>
           </table>
         </div>
         <p className="text-xs text-zinc-400">
-          Gece tarifesi {TARIFF.nightStartHour}:00 – {nightEnd}:00 arasında oluşturulan
-          taleplere uygulanır. Tarifenin son güncellenme tarihi: {TARIFF.updatedAt}.
-          Fiyatlara KDV dahildir.
+          Yukarıda adı geçmeyen bir konumdan gelen talepler "Diğer şehirler" tarifesinden
+          ücretlendirilir. Gece tarifesi {TARIFF.nightStartHour}:00 – {nightEnd}:00 arasında
+          oluşturulan taleplere uygulanır. Tarifenin son güncellenme tarihi:{" "}
+          {TARIFF.updatedAt}. Fiyatlara KDV dahildir.
         </p>
       </section>
 
