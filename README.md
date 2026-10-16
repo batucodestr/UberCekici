@@ -128,6 +128,29 @@ Testler:
 npm run test
 ```
 
+## Ödeme Altyapısı (PayTR iFrame API)
+
+Kart ödemeleri PayTR iFrame API üzerinden alınır. İki tahsilat noktası vardır:
+müşterinin hizmet talebi (`ServiceRequest.price`) ve sürücünün paket satın
+alması (sabit paket fiyatı). Mevcut nakit ve havale/EFT akışları korunmuştur.
+
+| Uç | Kim | Açıklama |
+|---|---|---|
+| `POST /api/payments/paytr/requests/{id}/init/` | müşteri | Talebi için ödeme başlatır, iFrame token'ı döner |
+| `POST /api/payments/paytr/subscription/init/` | sürücü | Paket ödemesi başlatır (`three_day` / `weekly`) |
+| `POST /api/payments/paytr/callback/` | PayTR | Sunucudan sunucuya ödeme bildirimi (imza doğrulamalı) |
+| `GET /api/payments/paytr/transactions/{merchant_oid}/` | işlem sahibi / admin | Doğrulanmış ödeme durumu |
+| `GET /api/admin/payment-transactions/` | admin | Ödeme mutabakatı (panel: **Ödemeler** sekmesi) |
+
+Ödeme ekranı `/odeme/<token>`, dönüş sayfaları `/odeme/basarili` ve
+`/odeme/basarisiz` adreslerindedir. Kart ödemesi yalnızca fiyat kesinleştikten
+sonra (teklif kabul edilmiş veya sürücü atanmış talepte) başlatılabilir. Tutar hiçbir zaman istemciden alınmaz ve
+sipariş yalnızca **imzası doğrulanmış** PayTR bildirimiyle "ödendi" olur —
+kullanıcının başarı sayfasına dönmesi ödeme kanıtı değildir.
+
+Kurulum, ortam değişkenleri, PayTR panel ayarları, güvenlik tasarımı ve
+canlı moda geçiş adımları: **[docs/paytr-entegrasyonu.md](docs/paytr-entegrasyonu.md)**
+
 ## Fiyat Motoru
 
 `apps/pricing/services.py` içindeki `calculate_price` fonksiyonu:

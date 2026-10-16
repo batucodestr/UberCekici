@@ -5,7 +5,7 @@ import { LegalLayout } from "@/components/legal/LegalLayout";
 import { COMPANY } from "@/lib/company";
 
 /**
- * iyzico üye işyeri başvurusunun istediği "İletişim" sayfası: açık adres,
+ * Ödeme kuruluşu üye işyeri başvurusunun istediği "İletişim" sayfası: açık adres,
  * telefon ve e-posta girişsiz erişilebilir olmalı.
  */
 export default function ContactPage() {

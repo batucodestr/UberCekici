@@ -2,6 +2,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from apps.drivers.views import AdminDriverViewSet
+from apps.payments.views import AdminPaymentTransactionViewSet
 from apps.requests.views import AdminServiceRequestViewSet
 from apps.support.views import AdminSupportTicketViewSet
 from apps.users.views import AdminUserViewSet
@@ -13,6 +14,9 @@ router.register("users", AdminUserViewSet, basename="admin-user")
 router.register("drivers", AdminDriverViewSet, basename="admin-driver")
 router.register("requests", AdminServiceRequestViewSet, basename="admin-request")
 router.register("tickets", AdminSupportTicketViewSet, basename="admin-ticket")
+router.register(
+    "payment-transactions", AdminPaymentTransactionViewSet, basename="admin-payment-transaction"
+)
 
 urlpatterns = [
     path("dashboard/", DashboardStatsView.as_view(), name="admin-dashboard"),

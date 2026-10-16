@@ -4,6 +4,7 @@ import type {
   AuditLog,
   DashboardStats,
   Paginated,
+  PaymentTransaction,
   PriceRule,
   Role,
   SupportTicket,
@@ -76,6 +77,25 @@ export async function fetchAdminRequests(
   params?: ListParams
 ): Promise<Paginated<import("@/types").ServiceRequest>> {
   const { data } = await api.get("/admin/requests/", { params: buildParams(params) });
+  return data;
+}
+
+export async function approveTransfer(id: number): Promise<import("@/types").ServiceRequest> {
+  const { data } = await api.post(`/admin/requests/${id}/approve-transfer/`);
+  return data;
+}
+
+/**
+ * PayTR ödeme işlemleri (mutabakat ekranı). Salt-okunur: işlem durumu
+ * yalnızca imzası doğrulanmış PayTR bildirimiyle değişir, panelden elle
+ * "ödendi" işaretlenemez.
+ */
+export async function fetchPaymentTransactions(
+  params?: ListParams
+): Promise<Paginated<PaymentTransaction>> {
+  const { data } = await api.get<Paginated<PaymentTransaction>>("/admin/payment-transactions/", {
+    params: buildParams(params),
+  });
   return data;
 }
 

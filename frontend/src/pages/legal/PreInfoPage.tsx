@@ -4,7 +4,7 @@ import { COMPANY } from "@/lib/company";
 import { TARIFF } from "@/lib/tariff";
 
 /**
- * iyzico üye işyeri başvurusunun istediği "Ön Bilgilendirme Formu".
+ * Ödeme kuruluşu üye işyeri başvurusunun istediği "Ön Bilgilendirme Formu".
  * Mesafeli Sözleşmeler Yönetmeliği m.5 uyarınca, tüketici sipariş vermeden
  * önce bilgilendirilmelidir.
  */
@@ -47,7 +47,7 @@ export default function PreInfoPage() {
             onayı olmadan tahsilat yapılmaz.
           </li>
           <li>
-            Ödeme, iyzico ödeme altyapısı üzerinden Visa veya MasterCard logolu kredi/banka
+            Ödeme, güvenli ödeme altyapısı üzerinden Visa veya MasterCard logolu kredi/banka
             kartıyla, 3D Secure doğrulamasıyla tek çekimde alınır.
           </li>
           <li>Hizmet bedeli dışında tüketiciden ek bir masraf veya komisyon talep edilmez.</li>
@@ -82,7 +82,7 @@ export default function PreInfoPage() {
         <h2 className="mb-2 text-lg font-bold text-zinc-900">6. İade Koşulları</h2>
         <p>
           Hizmetin hiç verilmemesi, eksik verilmesi veya ayıplı ifa edilmesi halinde ücret iadesi
-          talep edilebilir. Onaylanan iadeler, ödemenin yapıldığı karta iyzico altyapısı
+          talep edilebilir. Onaylanan iadeler, ödemenin yapıldığı karta ödeme altyapısı
           üzerinden, onay tarihinden itibaren en geç 14 gün içinde aktarılır. Ayrıntılar{" "}
           <span className="font-semibold text-zinc-700">Teslimat ve İade Koşulları</span>{" "}
           sayfasında yer alır.

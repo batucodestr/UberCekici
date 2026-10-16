@@ -33,13 +33,24 @@ xn--kurtarcm-ykbb.com.tr {
     # gelir. Tam kapatmak için origin 80/443 yalnızca Cloudflare IP
     # aralıklarına açılmalı (cloudflare.com/ips).
 
+    # PayTR iFrame ödeme ekranı (/odeme/:token) için CSP istisnaları:
+    #   - frame-src: ödeme formu https://www.paytr.com/odeme/guvenli/<token>
+    #     adresinden bir iFrame içinde açılır. Bu izin olmadan çerçeve
+    #     default-src 'self' tarafından engellenir ve ödeme ekranı boş gelir.
+    #   - script-src: PayTR'nin resmî iframeResizer.min.js betiği çerçevenin
+    #     boyunu içeriğe göre ayarlar.
+    # Başka hiçbir yönerge gevşetilmedi; X-Frame-Options/frame-ancestors
+    # (BİZİM sayfalarımızın başkası tarafından çerçevelenmesi) aynen kaldı.
+    # NOT: 3D Secure adımında banka sayfası PayTR'nin kendi çerçevesi içinde
+    # açılır. Bir bankada çerçeve engellenirse ilgili banka alan adının da
+    # frame-src'ye eklenmesi gerekir (tarayıcı konsolunda CSP ihlali görünür).
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
         Referrer-Policy "strict-origin-when-cross-origin"
         Permissions-Policy "geolocation=(self), camera=(), microphone=()"
-        Content-Security-Policy "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' wss://xn--kurtarcm-ykbb.com.tr; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+        Content-Security-Policy "default-src 'self'; img-src 'self' data:; script-src 'self' https://www.paytr.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' wss://xn--kurtarcm-ykbb.com.tr; frame-src https://www.paytr.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
         -Server
     }
 
@@ -90,5 +101,123 @@ xn--kurtarcm-ykbb.com.tr {
             roll_keep 5
         }
         format json
+    }
+}
+
+api.xn--kurtarcm-ykbb.com.tr {
+    encode zstd gzip
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        -Server
+    }
+
+    handle {
+        reverse_proxy ubercekici-backend:8000 {
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+        }
+    }
+}
+
+# ================= kurtaricim.com.tr (ASCII alan adı) =================
+# www bu apex'e yönlenir. /api ve /django-admin ubercekici-backend:8000.
+# api.kurtaricim.com.tr üzerindeki tüm istekler aynı backend'e gider.
+
+www.kurtaricim.com.tr {
+    redir https://kurtaricim.com.tr{uri} permanent
+}
+
+kurtaricim.com.tr {
+    encode zstd gzip
+
+    # PayTR iFrame ödeme ekranı (/odeme/:token) için CSP istisnaları:
+    #   - frame-src: ödeme formu https://www.paytr.com/odeme/guvenli/<token>
+    #     adresinden bir iFrame içinde açılır. Bu izin olmadan çerçeve
+    #     default-src 'self' tarafından engellenir ve ödeme ekranı boş gelir.
+    #   - script-src: PayTR'nin resmî iframeResizer.min.js betiği çerçevenin
+    #     boyunu içeriğe göre ayarlar.
+    # Başka hiçbir yönerge gevşetilmedi; X-Frame-Options/frame-ancestors
+    # (BİZİM sayfalarımızın başkası tarafından çerçevelenmesi) aynen kaldı.
+    # NOT: 3D Secure adımında banka sayfası PayTR'nin kendi çerçevesi içinde
+    # açılır. Bir bankada çerçeve engellenirse ilgili banka alan adının da
+    # frame-src'ye eklenmesi gerekir (tarayıcı konsolunda CSP ihlali görünür).
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "geolocation=(self), camera=(), microphone=()"
+        Content-Security-Policy "default-src 'self'; img-src 'self' data:; script-src 'self' https://www.paytr.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' wss://kurtaricim.com.tr; frame-src https://www.paytr.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+        -Server
+    }
+
+    @websocket {
+        header Connection *Upgrade*
+        header Upgrade websocket
+    }
+    handle @websocket {
+        reverse_proxy ubercekici-websocket:8001 {
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+        }
+    }
+
+    @static path /static/* /media/*
+    handle @static {
+        reverse_proxy ubercekici-static:80
+    }
+
+    handle /api/* {
+        reverse_proxy ubercekici-backend:8000 {
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+        }
+    }
+
+    handle /django-admin/* {
+        reverse_proxy ubercekici-backend:8000 {
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+        }
+    }
+
+    handle {
+        reverse_proxy ubercekici-frontend:80 {
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+        }
+    }
+
+    log {
+        output file /var/log/caddy/ubercekici.log {
+            roll_size 10mb
+            roll_keep 5
+        }
+        format json
+    }
+}
+
+api.kurtaricim.com.tr {
+    encode zstd gzip
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        -Server
+    }
+
+    handle {
+        reverse_proxy ubercekici-backend:8000 {
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+        }
     }
 }

@@ -2,6 +2,7 @@ from django.db import IntegrityError, transaction
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -83,6 +84,17 @@ class OpenServiceRequestsView(generics.ListAPIView):
     serializer_class = ServiceRequestSerializer
     permission_classes = (permissions.IsAuthenticated, IsDriver)
 
+    def list(self, request, *args, **kwargs):
+        from apps.drivers.models import Driver
+
+        profile = Driver.objects.filter(user=request.user).first()
+        if profile is None or not profile.has_active_subscription():
+            return Response(
+                {"detail": "Lütfen teklif verebilmek için aktif bir paket satın alın"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        return super().list(request, *args, **kwargs)
+
     def get_queryset(self):
         return ServiceRequest.objects.select_related(
             "customer", "driver", "vehicle_type", "service_type"
@@ -94,6 +106,14 @@ class AcceptRequestView(APIView):
 
     @extend_schema(request=None, responses=ServiceRequestSerializer)
     def post(self, request, pk):
+        from apps.drivers.models import Driver
+
+        profile = Driver.objects.filter(user=request.user).first()
+        if profile is None or not profile.has_active_subscription():
+            self.permission_denied(
+                request, message="Lütfen teklif verebilmek için aktif bir paket satın alın"
+            )
+
         # Conditional update (CAS): only succeeds if the request is still
         # SEARCHING at the DB level, so two drivers accepting the same
         # request concurrently can't both "win" (last write silently
@@ -154,6 +174,10 @@ class RequestOffersView(APIView):
         if profile is None or profile.approval_status != Driver.ApprovalStatus.APPROVED:
             self.permission_denied(
                 request, message="Hesabınız onaylanmadan teklif veremezsiniz."
+            )
+        if not profile.has_active_subscription():
+            self.permission_denied(
+                request, message="Lütfen teklif verebilmek için aktif bir paket satın alın"
             )
 
         service_request = ServiceRequest.objects.filter(pk=pk).first()
@@ -305,15 +329,60 @@ class RateRequestView(APIView):
         return Response(ServiceRequestSerializer(service_request).data)
 
 
+class ConfirmTransferView(APIView):
+    """Müşteri havale/EFT yaptığını bildirir; ödeme onay kuyruğuna düşer."""
+
+    permission_classes = (permissions.IsAuthenticated, IsCustomer)
+
+    @extend_schema(request=None, responses=ServiceRequestSerializer)
+    def post(self, request, pk):
+        service_request = ServiceRequest.objects.filter(pk=pk, customer=request.user).first()
+        if service_request is None:
+            return Response({"detail": "Talep bulunamadı."}, status=status.HTTP_404_NOT_FOUND)
+        if service_request.status == ServiceRequest.Status.CANCELLED:
+            return Response(
+                {"detail": "İptal edilmiş bir talep için ödeme bildirilemez."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if service_request.payment_status == ServiceRequest.PaymentStatus.APPROVED:
+            return Response(
+                {"detail": "Bu talebin ödemesi zaten onaylandı."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        service_request.payment_method = ServiceRequest.PaymentMethod.BANK_TRANSFER
+        service_request.payment_status = ServiceRequest.PaymentStatus.PENDING_APPROVAL
+        service_request.save(update_fields=["payment_method", "payment_status", "updated_at"])
+        broadcast_request_update(service_request)
+        return Response(ServiceRequestSerializer(service_request).data)
+
+
 class AdminServiceRequestViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ServiceRequest.objects.select_related(
         "customer", "driver", "vehicle_type", "service_type"
     ).order_by("-created_at")
     serializer_class = ServiceRequestSerializer
     permission_classes = (permissions.IsAuthenticated, IsAdminRole)
-    filterset_fields = ("status", "vehicle_type", "service_type")
+    filterset_fields = ("status", "vehicle_type", "service_type", "payment_method", "payment_status")
     search_fields = ("customer__username", "driver__username", "contact_name", "contact_phone")
     ordering_fields = ("created_at", "price", "distance_km")
+
+    @extend_schema(request=None, responses=ServiceRequestSerializer)
+    @action(detail=True, methods=["post"], url_path="approve-transfer")
+    def approve_transfer(self, request, pk=None):
+        service_request = self.get_object()
+        if (
+            service_request.payment_method != ServiceRequest.PaymentMethod.BANK_TRANSFER
+            or service_request.payment_status != ServiceRequest.PaymentStatus.PENDING_APPROVAL
+        ):
+            return Response(
+                {"detail": "Onaylanacak bekleyen bir havale ödemesi yok."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        service_request.payment_status = ServiceRequest.PaymentStatus.APPROVED
+        service_request.save(update_fields=["payment_status", "updated_at"])
+        broadcast_request_update(service_request)
+        return Response(ServiceRequestSerializer(service_request).data)
 
 
 class UpdateRequestStatusView(APIView):

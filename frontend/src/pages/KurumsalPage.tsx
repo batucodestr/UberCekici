@@ -11,7 +11,7 @@ import { CITY_TARIFFS } from "@/lib/tariff";
  *
  * Metinler bilerek taahhüt içermeyecek biçimde yazılmıştır: koşullar
  * görüşmeye bağlı olarak belirlenir. Sunulmayan bir ürünü (ör. entegrasyon
- * API'si) vaat etmek hem yanıltıcı reklam hem de iyzico incelemesi açısından
+ * API'si) vaat etmek hem yanıltıcı reklam hem de ödeme kuruluşu incelemesi açısından
  * risklidir.
  */
 const OFFERS = [

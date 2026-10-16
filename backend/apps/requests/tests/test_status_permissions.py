@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 import pytest
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 from apps.drivers.models import Driver
@@ -92,7 +95,12 @@ def test_assigned_driver_moves_accepted_request_through_flow(make_request):
 @pytest.mark.django_db
 def test_accepted_offer_then_driver_goes_en_route(customer, make_request):
     user = _user("status_bidder", User.Role.DRIVER)
-    Driver.objects.create(user=user, approval_status=Driver.ApprovalStatus.APPROVED)
+    Driver.objects.create(
+        user=user,
+        approval_status=Driver.ApprovalStatus.APPROVED,
+        subscription_status=Driver.SubscriptionStatus.ACTIVE,
+        subscription_expires_at=timezone.now() + timedelta(days=1),
+    )
     service_request = make_request()
 
     offer = _client(user).post(

@@ -1,7 +1,7 @@
 import { COMPANY_FACTS } from "@/lib/company";
 
 /**
- * iyzico şartı: resmi belgelerdeki firma künyesi sitede yayınlanmalı.
+ * Yasal şart: resmi belgelerdeki firma künyesi sitede yayınlanmalı.
  * Aynı liste footer'da, giriş ekranında, panelde ve yasal metinlerin
  * "Satıcı Bilgileri" bölümlerinde kullanılır.
  */

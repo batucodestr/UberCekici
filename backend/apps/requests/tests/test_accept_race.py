@@ -1,7 +1,11 @@
+from datetime import timedelta
+
 import pytest
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from rest_framework.test import APIClient
 
+from apps.drivers.models import Driver
 from apps.pricing.models import PriceRule, ServiceType, VehicleType
 from apps.requests.models import ServiceRequest
 
@@ -37,6 +41,13 @@ def test_second_driver_cannot_accept_already_taken_request(customer, catalog):
 
     driver_a = User.objects.create_user(username="driver_a", email="driver_a@test.local", password="x", role=User.Role.DRIVER)
     driver_b = User.objects.create_user(username="driver_b", email="driver_b@test.local", password="x", role=User.Role.DRIVER)
+    for user in (driver_a, driver_b):
+        Driver.objects.create(
+            user=user,
+            approval_status=Driver.ApprovalStatus.APPROVED,
+            subscription_status=Driver.SubscriptionStatus.ACTIVE,
+            subscription_expires_at=timezone.now() + timedelta(days=1),
+        )
 
     client_a = APIClient()
     client_a.force_authenticate(user=driver_a)

@@ -2,6 +2,8 @@ from decimal import Decimal
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+from datetime import timedelta
 from rest_framework.test import APIClient
 
 from apps.drivers.models import Driver
@@ -21,7 +23,14 @@ def _driver(username, approval=Driver.ApprovalStatus.APPROVED):
     user = User.objects.create_user(
         username=username, email=f"{username}@test.local", password="x", role=User.Role.DRIVER
     )
-    Driver.objects.create(user=user, approval_status=approval, vehicle_plate="34 ABC 123")
+    Driver.objects.create(
+        user=user,
+        approval_status=approval,
+        vehicle_plate="34 ABC 123",
+        subscription_status=Driver.SubscriptionStatus.ACTIVE,
+        subscription_plan=Driver.SubscriptionPlan.WEEKLY,
+        subscription_expires_at=timezone.now() + timedelta(days=7),
+    )
     return user
 
 

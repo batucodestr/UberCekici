@@ -36,6 +36,8 @@ def find_driver_for_request(request_id):
     candidates = Driver.objects.filter(
         is_online=True,
         approval_status=Driver.ApprovalStatus.APPROVED,
+        subscription_status=Driver.SubscriptionStatus.ACTIVE,
+        subscription_expires_at__gt=timezone.now(),
         location__isnull=False,
     ).select_related("user", "location")
 

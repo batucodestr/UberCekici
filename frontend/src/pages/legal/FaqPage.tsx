@@ -28,7 +28,7 @@ const FAQS = [
   },
   {
     q: "Ödeme nasıl yapılıyor?",
-    a: "Ödemeler iyzico ödeme altyapısı üzerinden, Visa ve MasterCard logolu kredi/banka kartlarıyla ve 3D Secure doğrulamasıyla alınır. Kart bilgileriniz bizim sunucularımızda saklanmaz. Ödenecek tutar, onayınızdan önce net olarak gösterilir.",
+    a: "Ödemeler güvenli ödeme altyapısı üzerinden, Visa ve MasterCard logolu kredi/banka kartlarıyla ve 3D Secure doğrulamasıyla alınır. Kart bilgileriniz bizim sunucularımızda saklanmaz. Ödenecek tutar, onayınızdan önce net olarak gösterilir.",
   },
   {
     q: "Talebimi iptal edebilir miyim?",

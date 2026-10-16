@@ -10,6 +10,7 @@ from .views import (
     RateRequestView,
     RejectOfferView,
     RequestOffersView,
+    ConfirmTransferView,
     ServiceRequestDetailView,
     UpdateRequestStatusView,
 )
@@ -28,6 +29,11 @@ urlpatterns = [
     ),
     path("request/<int:pk>/rate/", RateRequestView.as_view(), name="request-rate"),
     path("requests/<int:pk>/offers/", RequestOffersView.as_view(), name="request-offers"),
+    path(
+        "requests/<int:pk>/confirm-transfer/",
+        ConfirmTransferView.as_view(),
+        name="request-confirm-transfer",
+    ),
     path("offers/<int:pk>/accept/", AcceptOfferView.as_view(), name="offer-accept"),
     path("offers/<int:pk>/reject/", RejectOfferView.as_view(), name="offer-reject"),
 ]

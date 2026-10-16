@@ -71,6 +71,58 @@ export type RequestStatus =
   | "completed"
   | "cancelled";
 
+export type PaymentMethod = "cash" | "card" | "bank_transfer";
+export type PaymentStatus = "unpaid" | "pending_approval" | "approved" | "rejected";
+
+/** Sürücü paketleri (sunucudaki SUBSCRIPTION_PLANS ile aynı anahtarlar). */
+export type SubscriptionPlan = "three_day" | "weekly";
+
+export type PaymentPurpose = "service_request" | "driver_subscription";
+
+/** PayTR işleminin sunucuda doğrulanmış durumu. */
+export type PaymentTransactionStatus = "pending" | "paid" | "failed" | "mismatch";
+
+/**
+ * Ödeme başlatma yanıtı. `iframe_token` ödeme formunu açmak içindir;
+ * mağaza anahtarı/salt'ı hiçbir zaman istemciye gönderilmez.
+ */
+export interface PaymentInitResponse {
+  merchant_oid: string;
+  purpose: PaymentPurpose;
+  amount: string;
+  currency: string;
+  status: PaymentTransactionStatus;
+  test_mode: boolean;
+  iframe_token: string;
+  /** PayTR'nin güvenli ödeme formu adresi. */
+  iframe_url: string;
+  /** Sitenin kendi ödeme ekranı — ör. "/odeme/<token>". */
+  payment_page_path: string;
+  created_at: string;
+}
+
+/** Doğrulanmış ödeme durumu (başarı/hata ekranı bunu sorar). */
+export interface PaymentTransaction {
+  id: number;
+  merchant_oid: string;
+  purpose: PaymentPurpose;
+  status: PaymentTransactionStatus;
+  amount: string;
+  currency: string;
+  total_amount: string | null;
+  payment_type: string;
+  installment_count: number | null;
+  test_mode: boolean;
+  service_request: number | null;
+  driver_subscription: number | null;
+  subscription_plan: string;
+  failed_reason_code: string;
+  failed_reason_msg: string;
+  paid_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ServiceRequest {
   id: number;
   customer: User;
@@ -90,6 +142,8 @@ export interface ServiceRequest {
   contact_phone: string;
   note: string;
   status: RequestStatus;
+  payment_method: PaymentMethod;
+  payment_status: PaymentStatus;
   rating: number | null;
   rating_comment: string;
   created_at: string;

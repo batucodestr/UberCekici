@@ -1,7 +1,7 @@
 /**
- * iyzico üye işyeri başvurusunun istediği firma künyesi.
+ * Ödeme kuruluşu üye işyeri başvurusunun istediği firma künyesi.
  *
- * iyzico, resmi belgelerdeki bilgilerin web sitesinde birebir aynı şekilde
+ * Ödeme kuruluşu, resmi belgelerdeki bilgilerin web sitesinde birebir aynı şekilde
  * yayınlanmasını şart koşar. Buradaki değerler footer, giriş ekranı, yönetici
  * paneli ve tüm yasal metinlerde otomatik olarak kullanılır.
  *
@@ -11,13 +11,13 @@
  *  - İzmir Oto Tamirciler Esnaf ve Sanatkarlar Odası Mesleki Faaliyet Belgesi,
  *    Belge No 34219016, 06.10.2026 (esnaf sicil no, oda kaydı)
  *
- * Not: T.C. kimlik numarası bilerek yayınlanmaz — iyzico bunu sitede aramaz
+ * Not: T.C. kimlik numarası bilerek yayınlanmaz — ödeme kuruluşu bunu sitede aramaz
  * ve vergi kimlik numarası zaten ayrıca mevcuttur.
  *
  * Künye eksiksizdir. Bu bilgilerden biri değişirse (adres taşıma, vergi
  * dairesi değişikliği, yeni telefon) yalnızca burayı güncelleyin — sitedeki
  * tüm görünümler buradan beslenir. Sitedeki künye ile resmi kayıtların
- * ayrışması iyzico açısından ret sebebidir.
+ * ayrışması ödeme kuruluşu açısından ret sebebidir.
  */
 export const COMPANY = {
   /** Resmi belgelerdeki ad soyad + işletme adı (şahıs/esnaf işletmesi). */
@@ -56,7 +56,7 @@ export const COMPANY = {
   /** Müşteri iletişim e-postası. */
   email: "akcagokhan3525@gmail.com",
   /**
-   * KEP (Kayıtlı Elektronik Posta) adresi. iyzico iletişim bölümünde KEP
+   * KEP (Kayıtlı Elektronik Posta) adresi. Ödeme kuruluşu iletişim bölümünde KEP
    * adresini de arıyor; şahıs/esnaf işletmelerinde KEP zorunlu olmadığı için
    * yoksa boş bırakın — satır künyeden otomatik düşer.
    */

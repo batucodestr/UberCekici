@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
 
 /**
- * iyzico üye işyeri başvurusunun zorunlu tuttuğu ödeme logoları bandı:
- * "iyzico ile Öde" + Visa + MasterCard. Görseller `frontend/public/payment/`
- * altında yerel olarak servis edilir (iyzico'nun resmi görselleri), böylece
- * dış sunucu erişilemese bile band kaybolmaz.
+ * Ödeme kuruluşu üye işyeri başvurusunun zorunlu tuttuğu ödeme logoları bandı:
+ * Visa + MasterCard. Görseller `frontend/public/payment/` altında yerel olarak
+ * servis edilir, böylece dış sunucu erişilemese bile band kaybolmaz.
  *
  * Band hem halka açık yüzde (giriş ekranı, yasal sayfaların footer'ı) hem de
  * yönetici panelinin içinde gösterilir.
@@ -26,12 +25,6 @@ export function PaymentBadges({
       </p>
       <div className="flex flex-wrap items-center justify-center gap-2.5 sm:justify-start">
         <img
-          src="/payment/iyzico-ile-ode.png"
-          alt="iyzico ile Öde"
-          className={`h-8 w-auto rounded-md object-contain ${isDark ? "bg-white p-1" : ""}`}
-          loading="lazy"
-        />
-        <img
           src="/payment/visa.svg"
           alt="Visa"
           className="h-8 w-auto object-contain"
@@ -45,7 +38,7 @@ export function PaymentBadges({
         />
       </div>
       <p className={`text-[11px] leading-relaxed ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>
-        Ödemeler iyzico altyapısı üzerinden 3D Secure ile alınır.{" "}
+        Ödemeler güvenli ödeme altyapısı üzerinden 3D Secure ile alınır.{" "}
         <Link
           to="/teslimat-ve-iade"
           className={isDark ? "underline hover:text-zinc-300" : "underline hover:text-primary-600"}

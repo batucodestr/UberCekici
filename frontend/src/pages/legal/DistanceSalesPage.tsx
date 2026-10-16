@@ -3,7 +3,7 @@ import { LegalLayout } from "@/components/legal/LegalLayout";
 import { COMPANY } from "@/lib/company";
 
 /**
- * iyzico üye işyeri başvurusunun istediği "Mesafeli Satış Sözleşmesi".
+ * Ödeme kuruluşu üye işyeri başvurusunun istediği "Mesafeli Satış Sözleşmesi".
  * 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler
  * Yönetmeliği kapsamında hazırlanmıştır.
  */
@@ -96,7 +96,7 @@ export default function DistanceSalesPage() {
       <section className="space-y-3">
         <h2 className="mb-2 text-lg font-bold text-zinc-900">6. Ödeme ve Faturalandırma</h2>
         <p>
-          Ödemeler, iyzico ödeme kuruluşu altyapısı üzerinden Visa ve MasterCard logolu
+          Ödemeler, lisanslı ödeme kuruluşu altyapısı üzerinden Visa ve MasterCard logolu
           kredi/banka kartlarıyla, 3D Secure doğrulamasıyla alınır. Kart bilgileri{" "}
           {COMPANY.brandName} sunucularında saklanmaz. Hizmet bedeline ilişkin fatura, hizmetin
           ifasının ardından Tüketicinin bildirdiği bilgiler üzerinden düzenlenir.

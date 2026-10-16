@@ -5,6 +5,7 @@ import { ADMIN_HOME, AdminRoute } from "@/components/ProtectedRoute";
 import AdminAuditLogPage from "@/pages/admin/AdminAuditLogPage";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminDriversPage from "@/pages/admin/AdminDriversPage";
+import AdminPaymentsPage from "@/pages/admin/AdminPaymentsPage";
 import AdminPriceRulesPage from "@/pages/admin/AdminPriceRulesPage";
 import AdminProfilePage from "@/pages/admin/AdminProfilePage";
 import AdminRequestsPage from "@/pages/admin/AdminRequestsPage";
@@ -23,11 +24,13 @@ import PreInfoPage from "@/pages/legal/PreInfoPage";
 import PrivacyPage from "@/pages/legal/PrivacyPage";
 import ServicesPage from "@/pages/legal/ServicesPage";
 import TermsPage from "@/pages/legal/TermsPage";
+import PaymentPage from "@/pages/payment/PaymentPage";
+import PaymentResultPage from "@/pages/payment/PaymentResultPage";
 
 /**
  * Site iki katmandan oluşur:
  *  - Halka açık yüz: tanıtım, hizmet/fiyat bilgisi, iletişim ve yasal metinler.
- *    iyzico üye işyeri kriterleri bu katmanın yayında olmasını gerektirir.
+ *    Ödeme kuruluşu üye işyeri kriterleri bu katmanın yayında olmasını gerektirir.
  *  - Yönetici paneli (/giris + /admin): mobil uygulamayı yöneten ekranlar.
  * Müşteri çağırma ve sürücü işlemleri mobil uygulamada yürütülür.
  */
@@ -38,6 +41,13 @@ export default function App() {
       <Route path="/giris" element={<LoginPage />} />
       <Route path="/kurumsal-cozumler" element={<KurumsalPage />} />
       <Route path="/sss" element={<FaqPage />} />
+
+      {/* Ödeme ekranı: PayTR iFrame'i barındıran sayfa ve ödeme kuruluşunun
+          dönüş adresleri (merchant_ok_url / merchant_fail_url). Dönüş sayfası
+          ödeme kanıtı değildir; durumu backend'den doğrulatır. */}
+      <Route path="/odeme/basarili" element={<PaymentResultPage outcome="success" />} />
+      <Route path="/odeme/basarisiz" element={<PaymentResultPage outcome="failure" />} />
+      <Route path="/odeme/:token" element={<PaymentPage />} />
 
       <Route path="/kvkk" element={<KvkkPage />} />
       <Route path="/gizlilik-sozlesmesi" element={<PrivacyPage />} />
@@ -58,6 +68,7 @@ export default function App() {
           <Route path="requests" element={<AdminRequestsPage />} />
           <Route path="drivers" element={<AdminDriversPage />} />
           <Route path="users" element={<AdminUsersPage />} />
+          <Route path="payments" element={<AdminPaymentsPage />} />
           <Route path="pricing" element={<AdminPriceRulesPage />} />
           <Route path="audit-logs" element={<AdminAuditLogPage />} />
           <Route path="profile" element={<AdminProfilePage />} />

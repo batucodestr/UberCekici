@@ -4,7 +4,7 @@ import { COMPANY } from "@/lib/company";
 import { CITY_TARIFFS } from "@/lib/tariff";
 
 /**
- * iyzico üye işyeri başvurusunun istediği "Hakkımızda" sayfası:
+ * Ödeme kuruluşu üye işyeri başvurusunun istediği "Hakkımızda" sayfası:
  * işletmenin kim olduğu, ne sattığı ve resmi künyesi girişsiz görünür.
  */
 export default function AboutPage() {

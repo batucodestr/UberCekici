@@ -10,7 +10,27 @@ os.makedirs(LOG_DIR, exist_ok=True)
 
 SECRET_KEY = config("DJANGO_SECRET_KEY", default="insecure-dev-key-change-me")
 DEBUG = config("DEBUG", default=False, cast=bool)
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
+# Tarayıcı Host başlığını punycode gönderir; Unicode biçimler de kabul edilir.
+_EXTRA_HOSTS = (
+    "kurtaricim.com.tr",
+    "www.kurtaricim.com.tr",
+    "api.kurtaricim.com.tr",
+    "kurtarıcım.com.tr",
+    "www.kurtarıcım.com.tr",
+    "api.kurtarıcım.com.tr",
+    "xn--kurtarcm-ykbb.com.tr",
+    "www.xn--kurtarcm-ykbb.com.tr",
+    "api.xn--kurtarcm-ykbb.com.tr",
+    "93.88.201.163",
+)
+ALLOWED_HOSTS = list(
+    dict.fromkeys(
+        [
+            *config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv()),
+            *_EXTRA_HOSTS,
+        ]
+    )
+)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -152,6 +172,11 @@ REST_FRAMEWORK = {
         "user": "180/min",
         "auth": "10/min",
         "support": "20/min",
+        # Ödeme başlatma her çağrıda PayTR'ye dış istek yapar; token
+        # üretimini kötüye kullanmayı sınırlar. PayTR'nin bildirim ucu
+        # (callback) bilinçli olarak throttle DIŞINDADIR — aksi halde
+        # yoğun saatte gerçek ödeme bildirimleri 429 ile reddedilirdi.
+        "payment": "20/min",
     },
 }
 
@@ -175,14 +200,81 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
 }
 
-CORS_ALLOWED_ORIGINS = config(
-    "CORS_ALLOWED_ORIGINS", default="http://localhost:5173", cast=Csv()
+_EXTRA_ORIGINS = (
+    "https://kurtaricim.com.tr",
+    "https://www.kurtaricim.com.tr",
+    "https://api.kurtaricim.com.tr",
+    "https://kurtarıcım.com.tr",
+    "https://www.kurtarıcım.com.tr",
+    "https://api.kurtarıcım.com.tr",
+    "https://xn--kurtarcm-ykbb.com.tr",
+    "https://www.xn--kurtarcm-ykbb.com.tr",
+    "https://api.xn--kurtarcm-ykbb.com.tr",
+    "https://93.88.201.163",
+)
+CORS_ALLOWED_ORIGINS = list(
+    dict.fromkeys(
+        [
+            *config("CORS_ALLOWED_ORIGINS", default="http://localhost:5173", cast=Csv()),
+            *_EXTRA_ORIGINS,
+        ]
+    )
 )
 CORS_ALLOW_CREDENTIALS = True
 
 OSRM_URL = config("OSRM_URL", default="http://osrm:5000")
 NOMINATIM_URL = config("NOMINATIM_URL", default="https://nominatim.openstreetmap.org")
 GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY", default="")
+
+# --- PayTR iFrame API ---
+# Mağaza sırları YALNIZCA ortam değişkenlerinden okunur; repoda gerçek değer
+# tutulmaz (bkz. .env.example ve docs/paytr-entegrasyonu.md). Değerler PayTR
+# Mağaza Paneli > Destek & Kurulum > Entegrasyon Bilgileri altındadır.
+PAYTR_MERCHANT_ID = config("PAYTR_MERCHANT_ID", default="")
+PAYTR_MERCHANT_KEY = config("PAYTR_MERCHANT_KEY", default="")
+PAYTR_MERCHANT_SALT = config("PAYTR_MERCHANT_SALT", default="")
+
+# Resmî uçlar (dokümantasyonda sabit). Normalde değiştirilmez.
+PAYTR_TOKEN_URL = config("PAYTR_TOKEN_URL", default="https://www.paytr.com/odeme/api/get-token")
+PAYTR_IFRAME_URL_TEMPLATE = config(
+    "PAYTR_IFRAME_URL_TEMPLATE", default="https://www.paytr.com/odeme/guvenli/{token}"
+)
+
+# Ödeme sonrası kullanıcının döndüğü sayfalar. PayTR bu sayfalara veri POST
+# ETMEZ; ödeme kanıtı değildirler, yalnızca bilgilendirme ekranıdır.
+#
+# ALAN ADI SEÇİMİ — varsayılan bilinçli olarak PUNYCODE biçimidir:
+# siteyi fiilen sunan alan adı kurtarıcım.com.tr'dir ve DNS'te yalnızca onun
+# punycode karşılığı (xn--kurtarcm-ykbb.com.tr) bu sunucuya işaret eder.
+# ASCII "kurtaricim.com.tr" şu an BAŞKA bir IP'ye çözümlenmektedir; oraya
+# yönlendirme yapılırsa müşteri ödeme sonrası erişilemeyen bir sayfaya düşer.
+# Punycode ayrıca PayTR panelindeki URL alanları ve HTTP başlıkları için
+# güvenlidir (tarayıcı Host/Origin başlığını da punycode gönderir).
+# ASCII alan adı ileride bu sunucuya yönlendirilirse SITE_BASE_URL ortam
+# değişkeniyle değiştirilebilir.
+SITE_BASE_URL = config("SITE_BASE_URL", default="https://xn--kurtarcm-ykbb.com.tr").rstrip("/")
+PAYTR_MERCHANT_OK_URL = config(
+    "PAYTR_MERCHANT_OK_URL", default=f"{SITE_BASE_URL}/odeme/basarili"
+)
+PAYTR_MERCHANT_FAIL_URL = config(
+    "PAYTR_MERCHANT_FAIL_URL", default=f"{SITE_BASE_URL}/odeme/basarisiz"
+)
+
+# Canlı moda geçmeden önce 1 kalır (bkz. docs/paytr-entegrasyonu.md).
+PAYTR_TEST_MODE = config("PAYTR_TEST_MODE", default=True, cast=bool)
+# debug_on=1 PayTR'nin hata nedenini açık döndürür; canlıda kapatılır.
+PAYTR_DEBUG_ON = config("PAYTR_DEBUG_ON", default=False, cast=bool)
+PAYTR_TIMEOUT_LIMIT = config("PAYTR_TIMEOUT_LIMIT", default=30, cast=int)
+# no_installment=1 taksit seçeneklerini tamamen kapatır.
+PAYTR_NO_INSTALLMENT = config("PAYTR_NO_INSTALLMENT", default=0, cast=int)
+# 0 = mağazaya tanımlı en yüksek taksit; 2..12 arası sabitlenebilir.
+PAYTR_MAX_INSTALLMENT = config("PAYTR_MAX_INSTALLMENT", default=0, cast=int)
+PAYTR_CURRENCY = config("PAYTR_CURRENCY", default="TL")
+PAYTR_REQUEST_TIMEOUT = config("PAYTR_REQUEST_TIMEOUT", default=20, cast=int)
+# Alınan token'ın iFrame'de kullanılabilir kabul edildiği süre (dakika).
+# Aynı siparişe ait bekleyen bir ödeme bu süre içinde yeniden kullanılır,
+# böylece her tıklamada PayTR'ye yeni token isteği gitmez.
+PAYTR_TOKEN_TTL_MINUTES = config("PAYTR_TOKEN_TTL_MINUTES", default=30, cast=int)
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
@@ -199,10 +291,17 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = SITE_USES_HTTPS
 SECURE_HSTS_PRELOAD = SITE_USES_HTTPS
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
-CSRF_TRUSTED_ORIGINS = config(
-    "CSRF_TRUSTED_ORIGINS",
-    default="http://localhost,http://localhost:5173",
-    cast=Csv(),
+CSRF_TRUSTED_ORIGINS = list(
+    dict.fromkeys(
+        [
+            *config(
+                "CSRF_TRUSTED_ORIGINS",
+                default="http://localhost,http://localhost:5173",
+                cast=Csv(),
+            ),
+            *_EXTRA_ORIGINS,
+        ]
+    )
 )
 
 SESSION_COOKIE_HTTPONLY = True

@@ -36,10 +36,22 @@ class DriverSerializer(serializers.ModelSerializer):
             "vehicle_model",
             "total_earnings",
             "rating",
+            "subscription_status",
+            "subscription_plan",
+            "subscription_expires_at",
             "location",
             "created_at",
         )
-        read_only_fields = ("id", "approval_status", "total_earnings", "rating", "created_at")
+        read_only_fields = (
+            "id",
+            "approval_status",
+            "total_earnings",
+            "rating",
+            "subscription_status",
+            "subscription_plan",
+            "subscription_expires_at",
+            "created_at",
+        )
 
 
 class AdminDriverSerializer(DriverSerializer):

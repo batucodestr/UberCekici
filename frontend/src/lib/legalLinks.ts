@@ -1,5 +1,5 @@
 /**
- * iyzico üye işyeri başvurusunun web sitesinde aradığı zorunlu sayfalar.
+ * Ödeme kuruluşu üye işyeri başvurusunun web sitesinde aradığı zorunlu sayfalar.
  * Tek kaynak: footer, giriş ekranı ve yönetici paneli aynı listeyi kullanır,
  * böylece bir sayfa eklenince üç yerde birden görünür.
  */

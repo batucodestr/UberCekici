@@ -9,7 +9,7 @@ import {
 } from "@/lib/tariff";
 
 /**
- * iyzico üye işyeri başvurusunun istediği "satılan hizmet ve fiyat bilgisi"
+ * Ödeme kuruluşu üye işyeri başvurusunun istediği "satılan hizmet ve fiyat bilgisi"
  * sayfası: hangi hizmetin satıldığı ve ücretin nasıl hesaplandığı girişsiz
  * görünür olmalıdır.
  *
@@ -150,7 +150,7 @@ export default function ServicesPage() {
       <section className="space-y-3">
         <h2 className="mb-2 text-lg font-bold text-zinc-900">Ödeme Yöntemleri</h2>
         <p>
-          Ödemeler, iyzico ödeme altyapısı üzerinden Visa ve MasterCard logolu kredi/banka
+          Ödemeler, güvenli ödeme altyapısı üzerinden Visa ve MasterCard logolu kredi/banka
           kartlarıyla, 3D Secure doğrulamasıyla alınır.
         </p>
       </section>

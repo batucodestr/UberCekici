@@ -176,7 +176,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* iyzico kriteri: fiyat bilgisi anasayfadan da görünür olmalı. */}
+      {/* Ödeme kuruluşu kriteri: fiyat bilgisi anasayfadan da görünür olmalı. */}
       <section className="bg-zinc-50 px-4 py-16">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-2xl font-bold text-zinc-900">Fiyatlarımız şeffaf</h2>

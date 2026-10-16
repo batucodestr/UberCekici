@@ -119,7 +119,7 @@ export default function LoginPage() {
         </motion.div>
       </div>
 
-      {/* iyzico şartı: ödeme logoları ve firma künyesi giriş yapılmadan da görünür. */}
+      {/* Ödeme kuruluşu şartı: ödeme logoları ve firma künyesi giriş yapılmadan da görünür. */}
       <footer className="border-t border-white/10 px-4 py-8 text-xs text-zinc-500">
         <div className="mx-auto max-w-2xl space-y-6">
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">

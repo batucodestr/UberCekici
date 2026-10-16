@@ -15,6 +15,17 @@ class ServiceRequest(models.Model):
         COMPLETED = "completed", "Tamamlandı"
         CANCELLED = "cancelled", "İptal Edildi"
 
+    class PaymentMethod(models.TextChoices):
+        CASH = "cash", "Nakit"
+        CARD = "card", "Kart"
+        BANK_TRANSFER = "bank_transfer", "Havale/EFT"
+
+    class PaymentStatus(models.TextChoices):
+        UNPAID = "unpaid", "Ödenmedi"
+        PENDING_APPROVAL = "pending_approval", "Onay Bekliyor"
+        APPROVED = "approved", "Onaylandı"
+        REJECTED = "rejected", "Reddedildi"
+
     customer = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="service_requests"
     )
@@ -44,6 +55,12 @@ class ServiceRequest(models.Model):
     note = models.TextField(blank=True)
 
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.CREATED)
+    payment_method = models.CharField(
+        max_length=20, choices=PaymentMethod.choices, default=PaymentMethod.CASH
+    )
+    payment_status = models.CharField(
+        max_length=20, choices=PaymentStatus.choices, default=PaymentStatus.UNPAID
+    )
     rating = models.PositiveSmallIntegerField(null=True, blank=True)
     rating_comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

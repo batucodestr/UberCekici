@@ -3,7 +3,7 @@ import { LegalLayout } from "@/components/legal/LegalLayout";
 import { COMPANY } from "@/lib/company";
 
 /**
- * iyzico üye işyeri başvurusunun zorunlu tuttuğu "Teslimat ve İade" sayfası.
+ * Ödeme kuruluşu üye işyeri başvurusunun zorunlu tuttuğu "Teslimat ve İade" sayfası.
  * Hizmet fiziksel bir ürün teslimi içermediği için metin, hizmetin ifası ve
  * ücret iadesi üzerinden kurgulanmıştır.
  */
@@ -81,7 +81,7 @@ export default function DeliveryReturnPage() {
         <ul className="list-disc space-y-1 pl-5">
           <li>İade talebiniz en geç 3 iş günü içinde incelenir ve tarafınıza bilgi verilir.</li>
           <li>
-            Onaylanan iadeler, ödemenin yapıldığı karta iyzico altyapısı üzerinden yapılır;
+            Onaylanan iadeler, ödemenin yapıldığı karta ödeme altyapısı üzerinden yapılır;
             farklı bir hesaba veya nakit olarak iade yapılamaz.
           </li>
           <li>
@@ -96,7 +96,7 @@ export default function DeliveryReturnPage() {
       <section className="space-y-3">
         <h2 className="mb-2 text-lg font-bold text-zinc-900">6. Ödeme Güvenliği</h2>
         <p>
-          Tüm kart ödemeleri iyzico ödeme altyapısı üzerinden 3D Secure doğrulamasıyla alınır.
+          Tüm kart ödemeleri güvenli ödeme altyapısı üzerinden 3D Secure doğrulamasıyla alınır.
           Visa ve MasterCard logolu kartlar kabul edilir. Kart bilgileriniz
           {" "}{COMPANY.brandName} sunucularında saklanmaz.
         </p>

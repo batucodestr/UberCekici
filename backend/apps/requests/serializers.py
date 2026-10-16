@@ -104,6 +104,8 @@ class ServiceRequestSerializer(serializers.ModelSerializer):
             "contact_phone",
             "note",
             "status",
+            "payment_method",
+            "payment_status",
             "rating",
             "rating_comment",
             "created_at",

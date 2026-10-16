@@ -1,12 +1,12 @@
 /**
- * Sitede yayınlanan tarife. iyzico, satılan hizmetin ve fiyatının web
+ * Sitede yayınlanan tarife. Ödeme kuruluşu, satılan hizmetin ve fiyatının web
  * sitesinde görünür olmasını şart koşar.
  *
  * Buradaki değerler, yönetici panelindeki "Fiyat Kuralları", "Araç Tipleri" ve
  * "Hizmet Tipleri" kayıtlarından alınmıştır (son eşitleme: 08.10.2026).
  *
- * TODO(iyzico): Panelde tarifeyi değiştirdiğinizde bu dosyayı da güncelleyin.
- * Sitede yazan fiyatla tahsil edilen fiyatın farklı olması hem iyzico hem
+ * TODO(tarife): Panelde tarifeyi değiştirdiğinizde bu dosyayı da güncelleyin.
+ * Sitede yazan fiyatla tahsil edilen fiyatın farklı olması hem ödeme kuruluşu hem
  * tüketici mevzuatı açısından sorun yaratır.
  */
 

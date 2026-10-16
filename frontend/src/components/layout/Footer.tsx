@@ -27,12 +27,12 @@ export function Footer() {
         </ul>
       </div>
 
-      {/* iyzico şartı: ödeme logoları her sayfanın altında görünür olmalı. */}
+      {/* Ödeme kuruluşu şartı: ödeme logoları her sayfanın altında görünür olmalı. */}
       <div className="mx-auto mt-6 max-w-3xl border-t border-zinc-100 pt-6">
         <PaymentBadges />
       </div>
 
-      {/* iyzico şartı: resmi belgelerdeki künye bilgileri sitede yayınlanmalı. */}
+      {/* Yasal şart: resmi belgelerdeki künye bilgileri sitede yayınlanmalı. */}
       <div className="mx-auto mt-6 max-w-3xl border-t border-zinc-100 pt-6">
         <CompanyFacts variant="grid" />
       </div>

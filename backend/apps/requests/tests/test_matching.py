@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 import pytest
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from apps.drivers.models import Driver, DriverLocation
 from apps.notifications.models import Notification
@@ -18,6 +21,8 @@ def _make_driver(username, lat, lng, *, online=True, approved=True):
         approval_status=(
             Driver.ApprovalStatus.APPROVED if approved else Driver.ApprovalStatus.PENDING
         ),
+        subscription_status=Driver.SubscriptionStatus.ACTIVE if approved else Driver.SubscriptionStatus.INACTIVE,
+        subscription_expires_at=timezone.now() + timedelta(days=7) if approved else None,
     )
     DriverLocation.objects.create(driver=driver, latitude=lat, longitude=lng)
     return driver

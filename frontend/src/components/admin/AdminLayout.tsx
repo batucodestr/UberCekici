@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   ClipboardList,
+  CreditCard,
   FileClock,
   LayoutDashboard,
   LogOut,
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { to: "/admin/requests", label: "Talepler", icon: ClipboardList },
   { to: "/admin/drivers", label: "Çekiciler", icon: Truck },
   { to: "/admin/users", label: "Kullanıcılar", icon: Users },
+  { to: "/admin/payments", label: "Ödemeler", icon: CreditCard },
   { to: "/admin/pricing", label: "Fiyat Kuralları", icon: Tags },
   { to: "/admin/audit-logs", label: "Sistem Logları", icon: FileClock },
   { to: "/admin/profile", label: "Hesabım", icon: UserCog },
@@ -119,7 +121,7 @@ export function AdminLayout() {
           <Outlet />
         </div>
 
-        {/* iyzico şartı: ödeme logoları panel içinde de görünür olmalı. */}
+        {/* Ödeme kuruluşu şartı: ödeme logoları panel içinde de görünür olmalı. */}
         <footer className="border-t border-zinc-100 bg-white px-6 py-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <PaymentBadges />
